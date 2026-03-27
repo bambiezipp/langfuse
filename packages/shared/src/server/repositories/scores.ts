@@ -5,6 +5,7 @@ import {
   AGGREGATABLE_SCORE_TYPES,
   AggregatableScoreDataType,
   ScoreByDataType,
+  LISTABLE_SCORE_TYPES,
 } from "../../domain/scores";
 import {
   commandClickhouse,
@@ -131,7 +132,7 @@ export const getScoresByIds = async (
     scoreId,
     source,
     scoreScope: "all",
-    dataTypes: AGGREGATABLE_SCORE_TYPES,
+    dataTypes: LISTABLE_SCORE_TYPES,
   });
 };
 
@@ -249,7 +250,7 @@ export const getScoresForSessions = async <
       sessionIds,
       limit,
       offset,
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
     },
     tags: {
       feature: "sessions",
@@ -594,7 +595,7 @@ export const getScoresForTraces = async <
 ) => {
   return getScoresForTracesInternal({
     ...props,
-    dataTypes: AGGREGATABLE_SCORE_TYPES,
+    dataTypes: LISTABLE_SCORE_TYPES,
   });
 };
 
@@ -673,7 +674,7 @@ export const getScoresForObservations = async <
     params: {
       projectId: projectId,
       observationIds: observationIds,
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
       limit: limit,
       offset: offset,
     },
@@ -1191,7 +1192,7 @@ const getScoresUiGeneric = async <T>(props: {
     input: {
       params: {
         projectId: projectId,
-        dataTypes: AGGREGATABLE_SCORE_TYPES,
+        dataTypes: LISTABLE_SCORE_TYPES,
         ...(scoresFilterRes ? scoresFilterRes.params : {}),
         limit: limit,
         offset: offset,
@@ -1395,7 +1396,7 @@ const getScoresUiGenericFromEvents = async <T>(props: {
     input: {
       params: {
         projectId,
-        dataTypes: AGGREGATABLE_SCORE_TYPES,
+        dataTypes: LISTABLE_SCORE_TYPES,
         ...(scoreOnlyFilterRes ? scoreOnlyFilterRes.params : {}),
         ...tracesCTEParams,
         limit,
@@ -1537,7 +1538,7 @@ export const getScoreNames = async (
     params: {
       projectId: projectId,
       ...(timestampFilterRes ? timestampFilterRes.params : {}),
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
     },
     tags: {
       feature: "tracing",
@@ -1566,6 +1567,8 @@ export const getScoreStringValues = async (
   );
   const timestampFilterRes = chFilter.apply();
 
+  // exclude FREE_FORM scores as they are arbitrary by nature and hence have high cardinality
+  // which in turn can lead to performance issues
   const query = `
       select
         string_value,
@@ -1574,6 +1577,7 @@ export const getScoreStringValues = async (
       WHERE s.project_id = {projectId: String}
       AND string_value IS NOT NULL
       AND string_value != ''
+      AND s.data_type != 'FREE_FORM'
       ${timestampFilterRes?.query ? `AND ${timestampFilterRes.query}` : ""}
       GROUP BY string_value
       ORDER BY count() desc
@@ -1880,7 +1884,7 @@ export const getScoreCountsByProjectInCreationInterval = async ({
     params: {
       start: convertDateToClickhouseDateTime(start),
       end: convertDateToClickhouseDateTime(end),
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
     },
     clickhouseConfigs: {
       request_timeout: 120000, // 2 minutes timeout
@@ -1959,7 +1963,7 @@ export const getDistinctScoreNames = async (p: {
     params: {
       projectId,
       cutoffCreatedAt: convertDateToClickhouseDateTime(cutoffCreatedAt),
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
       ...(scoreTimestampFilter
         ? {
             filterTimestamp: convertDateToClickhouseDateTime(
@@ -2014,7 +2018,7 @@ export const getScoresForBlobStorageExport = function (
       projectId,
       minTimestamp: convertDateToClickhouseDateTime(minTimestamp),
       maxTimestamp: convertDateToClickhouseDateTime(maxTimestamp),
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
     },
     tags: {
       feature: "blobstorage",
@@ -2260,7 +2264,7 @@ export const getScoreCountsByProjectAndDay = async ({
     params: {
       startDate: convertDateToClickhouseDateTime(startDate),
       endDate: convertDateToClickhouseDateTime(endDate),
-      dataTypes: AGGREGATABLE_SCORE_TYPES,
+      dataTypes: LISTABLE_SCORE_TYPES,
     },
     tags: {
       feature: "tracing",
