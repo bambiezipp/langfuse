@@ -27,6 +27,8 @@ export function decodeUnicodeEscapesOnly(
   input: string,
   greedy: boolean = false,
 ): string {
+  if (input.indexOf("\\") === -1) return input;
+
   const n = input.length;
   const out: string[] = [];
   let i = 0;

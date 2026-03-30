@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  stringify,
-  stringifyForCsv,
-} from "../../../packages/shared/src/server/utils/transforms/stringify";
+import { stringify, stringifyForCsv } from "@langfuse/shared/src/server";
 
 describe("stringify unicode decode", () => {
   it("should decode unicode escapes in string values", () => {
