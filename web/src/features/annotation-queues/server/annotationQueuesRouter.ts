@@ -13,7 +13,10 @@ import {
   optionalPaginationZod,
   Prisma,
 } from "@langfuse/shared";
-import { getObservationById } from "@langfuse/shared/src/server";
+import {
+  getObservationById,
+  getObservationByIdFromEventsTable,
+} from "@langfuse/shared/src/server";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
@@ -405,6 +408,7 @@ export const queueRouter = createTRPCRouter({
         queueId: z.string(),
         projectId: z.string(),
         seenItemIds: z.array(z.string()),
+        isBetaEnabled: z.boolean().optional().default(false),
       }),
     )
     .mutation(async ({ input, ctx }) => {
@@ -456,10 +460,15 @@ export const queueRouter = createTRPCRouter({
       };
 
       if (item.objectType === AnnotationQueueObjectType.OBSERVATION) {
-        const clickhouseObservation = await getObservationById({
-          id: item.objectId,
-          projectId: input.projectId,
-        });
+        const clickhouseObservation = input.isBetaEnabled
+          ? await getObservationByIdFromEventsTable({
+              id: item.objectId,
+              projectId: input.projectId,
+            })
+          : await getObservationById({
+              id: item.objectId,
+              projectId: input.projectId,
+            });
         return {
           ...inflatedUpdatedItem,
           parentTraceId: clickhouseObservation?.traceId,
