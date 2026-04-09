@@ -8,7 +8,6 @@ import {
   protectedProjectProcedure,
 } from "@/src/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { logger } from "@langfuse/shared/src/server";
 
 export const commentReactionsRouter = createTRPCRouter({
   add: protectedProjectProcedure
@@ -157,13 +156,6 @@ export const commentReactionsRouter = createTRPCRouter({
       });
 
       const canSeeUserDetails = hasCommentsCUD && hasMembersRead;
-
-      // Debug logging
-      logger.info("Reaction permissions check", {
-        hasCommentsCUD,
-        hasMembersRead,
-        canSeeUserDetails,
-      });
 
       const reactions = await ctx.prisma.commentReaction.findMany({
         where: {

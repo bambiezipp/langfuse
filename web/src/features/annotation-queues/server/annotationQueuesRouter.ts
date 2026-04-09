@@ -135,6 +135,12 @@ export const queueRouter = createTRPCRouter({
       }),
     )
     .query(async ({ input, ctx }) => {
+      throwIfNoProjectAccess({
+        session: ctx.session,
+        projectId: input.projectId,
+        scope: "annotationQueues:read",
+      });
+
       const queueNamesAndIds = await ctx.prisma.annotationQueue.findMany({
         where: {
           projectId: input.projectId,
@@ -150,6 +156,12 @@ export const queueRouter = createTRPCRouter({
   count: protectedProjectProcedure
     .input(z.object({ projectId: z.string() }))
     .query(async ({ input, ctx }) => {
+      throwIfNoProjectAccess({
+        session: ctx.session,
+        projectId: input.projectId,
+        scope: "annotationQueues:read",
+      });
+
       return ctx.prisma.annotationQueue.count({
         where: { projectId: input.projectId },
       });
@@ -167,11 +179,18 @@ export const queueRouter = createTRPCRouter({
         where: { id: input.queueId, projectId: input.projectId },
       });
 
+      if (!queue) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Queue not found in project",
+        });
+      }
+
       const configs = await ctx.prisma.scoreConfig.findMany({
         where: {
           projectId: input.projectId,
           id: {
-            in: queue?.scoreConfigIds ?? [],
+            in: queue.scoreConfigIds,
           },
         },
       });
