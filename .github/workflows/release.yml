@@ -19,4 +19,6 @@ jobs:
           token: ${{ secrets.GH_ACCESS_TOKEN }}
           persist-credentials: false
       - name: Push to production
-        run: git push origin +main:production
+        run: git push "https://x-access-token:${GH_ACCESS_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" +main:production
+        env:
+          GH_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
