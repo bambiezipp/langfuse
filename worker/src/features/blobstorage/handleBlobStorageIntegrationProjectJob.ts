@@ -227,7 +227,13 @@ const processBlobStorageExport = async (config: {
     const extension = config.compressed
       ? `${blobStorageProps.extension}.gz`
       : blobStorageProps.extension;
-    const filePath = `${config.prefix ?? ""}${config.projectId}/${config.table}/${timestamp}.${extension}`;
+    let filePath = `${config.prefix ?? ""}${config.projectId}/${config.table}/${timestamp}.${extension}`;
+
+    // Azure Blob Storage disallows uppercase letters in resource names
+    if (config.type === BlobStorageIntegrationType.AZURE_BLOB_STORAGE) {
+      filePath = filePath.toLowerCase();
+    }
+
     const uploadContentType = config.compressed
       ? "application/gzip"
       : blobStorageProps.contentType;
