@@ -248,6 +248,62 @@ describe("buildTraceExport", () => {
     ).rejects.toBeInstanceOf(UnauthorizedError);
   });
 
+  it("allows unauthenticated access to public traces", async () => {
+    mockGetTraceById.mockResolvedValue(makeTrace({ public: true }));
+
+    const result = await buildTraceExport({
+      traceId,
+      projectId,
+      session: null,
+    });
+
+    expect(result).toMatchObject({
+      observations: [
+        expect.objectContaining({
+          id: "obs-1",
+          traceId,
+          public: true,
+        }),
+      ],
+    });
+  });
+
+  it("allows unauthenticated access to traces in public sessions", async () => {
+    mockGetTraceById.mockResolvedValue(
+      makeTrace({ public: false, sessionId: "trace-session-1" }),
+    );
+    mockTraceSessionFindFirst.mockResolvedValue({ public: true });
+
+    const result = await buildTraceExport({
+      traceId,
+      projectId,
+      session: null,
+    });
+
+    expect(mockTraceSessionFindFirst).toHaveBeenCalledWith({
+      where: {
+        id: "trace-session-1",
+        projectId,
+      },
+      select: {
+        public: true,
+      },
+    });
+    expect(result).toMatchObject({
+      observations: [expect.objectContaining({ id: "obs-1", traceId })],
+    });
+  });
+
+  it("denies unauthenticated access to private traces", async () => {
+    await expect(
+      buildTraceExport({
+        traceId,
+        projectId,
+        session: null,
+      }),
+    ).rejects.toBeInstanceOf(UnauthorizedError);
+  });
+
   it("notifies on admin access", async () => {
     await buildTraceExport({
       traceId,

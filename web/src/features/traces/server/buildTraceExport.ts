@@ -28,6 +28,8 @@ export type TraceExportSession = Session & {
   };
 };
 
+export type TraceExportAccessSession = TraceExportSession | null;
+
 export interface TraceExportObservation {
   id: string;
   traceId: string;
@@ -116,7 +118,7 @@ const getDurationSeconds = (
 export interface BuildTraceExportParams {
   traceId: string;
   projectId: string;
-  session: TraceExportSession;
+  session: TraceExportAccessSession;
 }
 
 export class TraceDownloadTooLargeError extends BaseError {
@@ -125,10 +127,13 @@ export class TraceDownloadTooLargeError extends BaseError {
   }
 }
 
-const hasProjectAccess = (session: TraceExportSession, projectId: string) =>
-  session.user.organizations.some((organization) =>
+const hasProjectAccess = (
+  session: TraceExportAccessSession,
+  projectId: string,
+) =>
+  session?.user.organizations.some((organization) =>
     organization.projects.some((project) => project.id === projectId),
-  );
+  ) ?? false;
 
 const getObservationRecordsForTrace = async (params: {
   traceId: string;
@@ -162,7 +167,7 @@ const getObservationRecordCountForTrace = async (params: {
 async function getAuthorizedTrace(params: {
   traceId: string;
   projectId: string;
-  session: TraceExportSession;
+  session: TraceExportAccessSession;
 }) {
   const { traceId, projectId, session } = params;
 
@@ -195,7 +200,7 @@ async function getAuthorizedTrace(params: {
     : null;
 
   const isSessionPublic = traceSession?.public === true;
-  const isAdmin = session.user.admin === true;
+  const isAdmin = session?.user.admin === true;
   const canReadTrace =
     clickhouseTrace.public ||
     isSessionPublic ||

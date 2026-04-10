@@ -2,6 +2,7 @@ import { InvalidRequestError, UnauthorizedError } from "@langfuse/shared";
 import { withMiddlewares } from "@/src/features/public-api/server/withMiddlewares";
 import {
   buildTraceExport,
+  type TraceExportAccessSession,
   type TraceExportSession,
 } from "@/src/features/traces/server/buildTraceExport";
 import { getServerAuthSession } from "@/src/server/auth";
@@ -12,9 +13,13 @@ const querySchema = z.object({
   projectId: z.string().min(1),
 });
 
-function assertTraceExportSession(
+function getTraceExportSession(
   session: Awaited<ReturnType<typeof getServerAuthSession>>,
-): asserts session is TraceExportSession {
+): TraceExportAccessSession {
+  if (!session) {
+    return null;
+  }
+
   if (
     !session?.user ||
     typeof session.user.email !== "string" ||
@@ -22,14 +27,17 @@ function assertTraceExportSession(
   ) {
     throw new UnauthorizedError("Unauthorized");
   }
+
+  return session as TraceExportSession;
 }
 
 const buildDownloadFilename = (traceId: string) => `trace-${traceId}.json`;
 
 export default withMiddlewares({
   GET: async (req, res) => {
-    const session = await getServerAuthSession({ req, res });
-    assertTraceExportSession(session);
+    const session = getTraceExportSession(
+      await getServerAuthSession({ req, res }),
+    );
 
     const result = querySchema.safeParse({
       traceId: req.query.traceId,

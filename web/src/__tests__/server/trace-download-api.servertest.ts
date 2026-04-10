@@ -44,8 +44,29 @@ describe("GET /api/traces/[traceId]/download", () => {
     });
   });
 
-  it("returns 401 when no session exists", async () => {
+  it("delegates unauthenticated requests to buildTraceExport", async () => {
     mockGetServerAuthSession.mockResolvedValue(null);
+    const { req, res } = createGetMocks({
+      traceId: "trace-1",
+      projectId,
+    });
+
+    await handler(req, res);
+
+    expect(mockBuildTraceExport).toHaveBeenCalledWith({
+      traceId: "trace-1",
+      projectId,
+      session: null,
+    });
+    expect(res._getStatusCode()).toBe(200);
+  });
+
+  it("returns 401 for malformed authenticated sessions", async () => {
+    mockGetServerAuthSession.mockResolvedValue({
+      user: {
+        email: "test@example.com",
+      },
+    });
     const { req, res } = createGetMocks({
       traceId: "trace-1",
       projectId,
