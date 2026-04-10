@@ -2,6 +2,7 @@ import {
   LangfuseNotFoundError,
   BaseError,
   UnauthorizedError,
+  parseMetadataCHRecordToDomain,
 } from "@langfuse/shared";
 import { type Session } from "next-auth";
 import {
@@ -451,7 +452,9 @@ export async function buildTraceExport({
             toolCalls: record.tool_calls ?? [],
             input: record.input ?? null,
             output: record.output ?? null,
-            metadata: JSON.stringify(record.metadata ?? {}),
+            metadata: JSON.stringify(
+              parseMetadataCHRecordToDomain(record.metadata ?? {}),
+            ),
           }
         : {}),
     };
