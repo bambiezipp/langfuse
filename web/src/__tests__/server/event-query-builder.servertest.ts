@@ -145,4 +145,37 @@ describe("EventsQueryBuilder", () => {
     expect(defaultQuery).toContain('e.tool_calls as "tool_calls"');
     expect(defaultQuery).toContain('e.tool_call_names as "tool_call_names"');
   });
+
+  it("should include pricing tier fields in observation list, detail, usage, and export field sets", () => {
+    const buildQuery = (
+      ...fieldSets: Parameters<EventsQueryBuilder["selectFieldSet"]>
+    ) =>
+      new EventsQueryBuilder({
+        projectId: "test-project",
+      })
+        .selectFieldSet(...fieldSets)
+        .buildWithParams().query;
+
+    const listQuery = buildQuery("base", "calculated");
+    const slimListQuery = buildQuery("baseWithoutTools", "calculated");
+    const byIdQuery = buildQuery(
+      "byIdBase",
+      "byIdModel",
+      "byIdPrompt",
+      "byIdTimestamps",
+    );
+    const usageQuery = buildQuery("core", "usage");
+    const exportQuery = buildQuery("export");
+
+    [listQuery, slimListQuery, byIdQuery, usageQuery, exportQuery].forEach(
+      (query) => {
+        expect(query).toContain(
+          'e.usage_pricing_tier_id as "usage_pricing_tier_id"',
+        );
+        expect(query).toContain(
+          'e.usage_pricing_tier_name as "usage_pricing_tier_name"',
+        );
+      },
+    );
+  });
 });
