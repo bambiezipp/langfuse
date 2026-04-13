@@ -1,12 +1,9 @@
 /** @jest-environment node */
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createMocks } from "node-mocks-http";
-import {
-  BaseError,
-  LangfuseNotFoundError,
-  UnauthorizedError,
-} from "@langfuse/shared";
+import { LangfuseNotFoundError, UnauthorizedError } from "@langfuse/shared";
 import handler from "../../pages/api/traces/[traceId]/download";
+import { TraceDownloadTooLargeError } from "../../features/traces/server/buildTraceExport";
 
 const mockGetServerAuthSession = jest.fn();
 const mockBuildTraceExport = jest.fn();
@@ -17,6 +14,7 @@ jest.mock("../../server/auth", () => ({
 }));
 
 jest.mock("../../features/traces/server/buildTraceExport", () => ({
+  ...jest.requireActual("../../features/traces/server/buildTraceExport"),
   buildTraceExport: (...args: unknown[]) => mockBuildTraceExport(...args),
 }));
 
@@ -159,12 +157,7 @@ describe("GET /api/traces/[traceId]/download", () => {
 
   it("returns a client-safe size-limit error for full exports", async () => {
     mockBuildTraceExport.mockRejectedValue(
-      new BaseError(
-        "TraceDownloadTooLargeError",
-        422,
-        "Observations in trace are too large",
-        true,
-      ),
+      new TraceDownloadTooLargeError("Observations in trace are too large"),
     );
     const { req, res } = createGetMocks({
       traceId: "trace-1",

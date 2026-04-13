@@ -1,6 +1,8 @@
 import { LangfuseNotFoundError, UnauthorizedError } from "@langfuse/shared";
+import { env } from "@langfuse/shared/src/env";
 import {
   buildTraceExport,
+  TraceDownloadTooLargeError,
   type TraceExportSession,
 } from "@/src/features/traces/server/buildTraceExport";
 
@@ -141,8 +143,13 @@ const makeScore = (overrides?: Record<string, unknown>) => ({
 });
 
 describe("buildTraceExport", () => {
+  const originalObservationLimit =
+    env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES;
+
   beforeEach(() => {
     jest.clearAllMocks();
+    env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES =
+      originalObservationLimit;
     mockGetTraceById.mockResolvedValue(makeTrace());
     mockGetObservationsCountFromEventsTable.mockResolvedValue(1);
     mockGetObservationsForTraceFromEventsTable.mockResolvedValue({
@@ -151,6 +158,11 @@ describe("buildTraceExport", () => {
     });
     mockGetScoresAndCorrectionsForTraces.mockResolvedValue([makeScore()]);
     mockTraceSessionFindFirst.mockResolvedValue(null);
+  });
+
+  afterAll(() => {
+    env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES =
+      originalObservationLimit;
   });
 
   it("builds an export using full observation data for smaller traces", async () => {
@@ -222,6 +234,29 @@ describe("buildTraceExport", () => {
     expect(result.observations[0]).not.toHaveProperty("toolDefinitions");
     expect(result.observations[0]).not.toHaveProperty("toolCalls");
     expect(result.observations[0]).toHaveProperty("toolCallNames");
+  });
+
+  it("reemits the observation payload limit error as a download-safe error", async () => {
+    mockGetObservationsCountFromEventsTable.mockResolvedValue(10);
+    env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES = 100;
+    mockGetObservationsForTraceFromEventsTable.mockResolvedValue({
+      observations: [
+        makeObservation({
+          input: "x".repeat(60),
+          output: "y".repeat(60),
+          metadata: { key: "z".repeat(60) },
+        }),
+      ],
+      totalCount: 1,
+    });
+
+    await expect(
+      buildTraceExport({
+        traceId,
+        projectId,
+        session: makeSession(),
+      }),
+    ).rejects.toBeInstanceOf(TraceDownloadTooLargeError);
   });
 
   it("throws a not-found error when the trace is missing", async () => {

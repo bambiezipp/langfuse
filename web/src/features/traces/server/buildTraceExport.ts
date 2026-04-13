@@ -1,10 +1,16 @@
-import { LangfuseNotFoundError, UnauthorizedError } from "@langfuse/shared";
+import {
+  BaseError,
+  LangfuseNotFoundError,
+  UnauthorizedError,
+} from "@langfuse/shared";
 import {
   getTraceById,
   getScoresAndCorrectionsForTraces,
   getObservationsCountFromEventsTable,
   getObservationsForTraceFromEventsTable,
+  TraceObservationsTooLargeError,
 } from "@langfuse/shared/src/server";
+import { env } from "@langfuse/shared/src/env";
 import { prisma } from "@langfuse/shared/src/db";
 import { sendAdminAccessWebhook } from "@/src/server/adminAccessWebhook";
 import { TRACE_DOWNLOAD_OMIT_LARGE_FIELDS_THRESHOLD } from "../shared/traceDownloadConfig";
@@ -22,6 +28,12 @@ export type TraceExportSession = {
 };
 
 export type TraceExportAccessSession = TraceExportSession | null;
+
+export class TraceDownloadTooLargeError extends BaseError {
+  constructor(description = "Observations in trace are too large") {
+    super("TraceDownloadTooLargeError", 422, description, true);
+  }
+}
 
 const getDurationSeconds = (
   startTime: Date,
@@ -151,12 +163,46 @@ export async function buildTraceExport({
   });
   const omitLargeFields =
     observationRecordCount >= TRACE_DOWNLOAD_OMIT_LARGE_FIELDS_THRESHOLD;
-  const { observations: observationRecords } =
-    await getObservationRecordsForTrace({
-      traceId,
-      projectId,
-      omitLargeFields,
+  const observationRecords = await getObservationRecordsForTrace({
+    traceId,
+    projectId,
+    omitLargeFields,
+  })
+    .then((result) => result.observations)
+    .catch((error) => {
+      if (error instanceof TraceObservationsTooLargeError) {
+        throw new TraceDownloadTooLargeError(error.message);
+      }
+
+      throw error;
     });
+
+  if (!omitLargeFields) {
+    // Same size validation as in getObservationsForTrace in observations.ts
+    let payloadSize = 0;
+
+    for (const observation of observationRecords) {
+      for (const key of ["input", "output"] as const) {
+        const value = observation[key];
+
+        if (typeof value === "string") {
+          payloadSize += value.length;
+        }
+      }
+
+      for (const value of Object.values(observation.metadata ?? {})) {
+        if (typeof value === "string") {
+          payloadSize += value.length;
+        }
+      }
+
+      if (payloadSize >= env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES) {
+        throw new TraceDownloadTooLargeError(
+          `Observations in trace are too large: ${(payloadSize / 1e6).toFixed(2)}MB exceeds limit of ${(env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES / 1e6).toFixed(2)}MB`,
+        );
+      }
+    }
+  }
 
   const scoreRecords = await getScoresAndCorrectionsForTraces({
     projectId,
