@@ -753,15 +753,19 @@ jobs:
           provenance: false
           sbom: false
       - name: Record pushed digests
+        env:
+          DIGEST_GHCR: ${{ steps.build-ghcr.outputs.digest }}
+          DIGEST_DOCKERHUB: ${{ steps.build-dockerhub.outputs.digest }}
+          PLATFORM_TAG: ${{ matrix.platform_tag }}
         run: |
-          if [ -z '${{ steps.build-ghcr.outputs.digest }}' ] || [ -z '${{ steps.build-dockerhub.outputs.digest }}' ]; then
+          if [ -z "$DIGEST_GHCR" ] || [ -z "$DIGEST_DOCKERHUB" ]; then
             echo "Missing registry digest output"
             exit 1
           fi
 
           mkdir -p "$RUNNER_TEMP/digests/ghcr" "$RUNNER_TEMP/digests/dockerhub"
-          printf '%s\n' '${{ steps.build-ghcr.outputs.digest }}' > "$RUNNER_TEMP/digests/ghcr/${{ matrix.platform_tag }}.txt"
-          printf '%s\n' '${{ steps.build-dockerhub.outputs.digest }}' > "$RUNNER_TEMP/digests/dockerhub/${{ matrix.platform_tag }}.txt"
+          printf '%s\n' "$DIGEST_GHCR" > "$RUNNER_TEMP/digests/ghcr/${PLATFORM_TAG}.txt"
+          printf '%s\n' "$DIGEST_DOCKERHUB" > "$RUNNER_TEMP/digests/dockerhub/${PLATFORM_TAG}.txt"
       - name: Upload release digests
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
