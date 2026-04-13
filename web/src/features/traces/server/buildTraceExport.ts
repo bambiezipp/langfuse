@@ -190,11 +190,7 @@ export async function buildTraceExport({
         }
       }
 
-      for (const value of Object.values(observation.metadata ?? {})) {
-        if (typeof value === "string") {
-          payloadSize += value.length;
-        }
-      }
+      payloadSize += JSON.stringify(observation.metadata).length;
 
       if (payloadSize >= env.LANGFUSE_API_TRACE_OBSERVATIONS_SIZE_LIMIT_BYTES) {
         throw new TraceDownloadTooLargeError(
