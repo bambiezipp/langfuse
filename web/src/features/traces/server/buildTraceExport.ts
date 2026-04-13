@@ -9,7 +9,6 @@ import {
   getScoresAndCorrectionsForTraces,
   getObservationsCountFromEventsTable,
   getObservationsForTraceFromEventsTable,
-  TraceObservationsTooLargeError,
 } from "@langfuse/shared/src/server";
 import { env } from "@langfuse/shared/src/env";
 import { prisma } from "@langfuse/shared/src/db";
@@ -168,15 +167,7 @@ export async function buildTraceExport({
     traceId,
     projectId,
     omitLargeFields,
-  })
-    .then((result) => result.observations)
-    .catch((error) => {
-      if (error instanceof TraceObservationsTooLargeError) {
-        throw new TraceDownloadTooLargeError(error.message);
-      }
-
-      throw error;
-    });
+  }).then((result) => result.observations);
 
   if (!omitLargeFields) {
     // Same size validation as in getObservationsForTrace in observations.ts
