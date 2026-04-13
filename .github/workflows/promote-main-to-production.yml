@@ -21,12 +21,12 @@ jobs:
     steps:
       - name: Validate confirmation
         run: |
-          if [ "${GITHUB_EVENT_INPUTS_CONFIRM}" != "promote" ]; then
+          if [ "${INPUT_CONFIRM}" != "promote" ]; then
             echo "Input 'confirm' must be 'promote'."
             exit 1
           fi
         env:
-          GITHUB_EVENT_INPUTS_CONFIRM: ${{ github.event.inputs.confirm }}
+          INPUT_CONFIRM: ${{ github.event.inputs.confirm }}
 
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
