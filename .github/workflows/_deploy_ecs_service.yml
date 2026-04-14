@@ -12,9 +12,9 @@ on:
         required: true
     secrets:
       AWS_ACCESS_KEY_ID:
-        required: false
+        required: true
       AWS_SECRET_ACCESS_KEY:
-        required: false
+        required: true
 jobs:
   ecs-deploy:
     runs-on: blacksmith-4vcpu-ubuntu-2404
