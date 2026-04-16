@@ -1403,3 +1403,18 @@ export function requiresV2(params: {
     params.measures.some((m) => v2OnlyMeasures.includes(m.measure))
   );
 }
+
+/**
+ * Returns the declared unit for a measure in a given view/version, or undefined
+ * if the view or measure is not found. Use this to drive display formatting
+ * (e.g. unit === "millisecond" → convert to seconds before rendering).
+ */
+export function getMeasureUnit(
+  viewName: string,
+  measureName: string,
+  version: ViewVersion = "v1",
+): string | undefined {
+  const versionViews = viewDeclarations[version];
+  const view = versionViews[viewName as keyof typeof versionViews];
+  return view?.measures[measureName]?.unit;
+}

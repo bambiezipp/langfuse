@@ -5,7 +5,9 @@ import {
   type metricAggregations,
   type QueryType,
   mapLegacyUiTableFilterToView,
+  getMeasureUnit,
 } from "@/src/features/query";
+import { latencyFormatter } from "@/src/utils/numbers";
 import { type z } from "zod";
 import { Chart } from "@/src/features/widgets/chart-library/Chart";
 import { type FilterState, type OrderByState } from "@langfuse/shared";
@@ -227,6 +229,16 @@ export function DashboardWidget({
     setRetryCount((current) => current + 1);
   }, []);
 
+  const measureUnit = useMemo(
+    () =>
+      getMeasureUnit(
+        widget.data?.view ?? "",
+        widget.data?.metrics[0]?.measure ?? "",
+        metricsVersion,
+      ),
+    [widget.data?.view, widget.data?.metrics, metricsVersion],
+  );
+
   const transformedData = useMemo(() => {
     if (!widget.data || !queryResult.data) {
       return [];
@@ -433,6 +445,9 @@ export function DashboardWidget({
                 widget.data.chartType === "PIVOT_TABLE" ? updateSort : undefined
               }
               isLoading={queryResult.isPending}
+              valueFormatter={
+                measureUnit === "millisecond" ? latencyFormatter : undefined
+              }
             />
             <ChartLoadingState
               isLoading={chartLoadingState.isLoading}
