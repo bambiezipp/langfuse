@@ -70,6 +70,9 @@ export interface PivotTableProps {
 
   /** Loading state for when data is being refreshed */
   isLoading?: boolean;
+
+  /** Optional formatter applied to numeric metric values (e.g. latency unit scaling) */
+  valueFormatter?: (value: number) => string;
 }
 
 /**
@@ -151,7 +154,8 @@ const SortableHeader: React.FC<{
 const PivotTableRowComponent: React.FC<{
   row: PivotTableRow;
   metrics: string[];
-}> = ({ row, metrics }) => {
+  valueFormatter?: (value: number) => string;
+}> = ({ row, metrics, valueFormatter }) => {
   return (
     <TableRow
       className={cn(
@@ -188,7 +192,7 @@ const PivotTableRowComponent: React.FC<{
             (row.isSubtotal || row.isTotal) && "font-semibold",
           )}
         >
-          {formatMetricValue(row.values[metric])}
+          {formatMetricValue(row.values[metric], valueFormatter)}
         </TableCell>
       ))}
     </TableRow>
@@ -202,9 +206,16 @@ const PivotTableRowComponent: React.FC<{
  * @param value - The metric value to format
  * @returns Formatted string for display
  */
-function formatMetricValue(value: number | string): string {
+function formatMetricValue(
+  value: number | string,
+  valueFormatter?: (value: number) => string,
+): string {
   if (typeof value === "string") {
     return value;
+  }
+
+  if (valueFormatter) {
+    return valueFormatter(value);
   }
 
   return numberFormatter(value, 2).replace(/\.00$/, "");
@@ -237,6 +248,7 @@ export const PivotTable: React.FC<PivotTableProps> = ({
   sortState,
   onSortChange,
   isLoading = false,
+  valueFormatter,
 }) => {
   // Transform chart data into pivot table structure
   const pivotTableRows = useMemo(() => {
@@ -417,7 +429,12 @@ export const PivotTable: React.FC<PivotTableProps> = ({
 
         <TableBody>
           {sortedRows.map((row) => (
-            <PivotTableRowComponent key={row.id} row={row} metrics={metrics} />
+            <PivotTableRowComponent
+              key={row.id}
+              row={row}
+              metrics={metrics}
+              valueFormatter={valueFormatter}
+            />
           ))}
         </TableBody>
       </Table>

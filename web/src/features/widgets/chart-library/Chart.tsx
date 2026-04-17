@@ -162,6 +162,7 @@ export const Chart = ({
             sortState={sortState}
             onSortChange={onSortChange}
             isLoading={isLoading}
+            valueFormatter={valueFormatter}
           />
         );
       }
