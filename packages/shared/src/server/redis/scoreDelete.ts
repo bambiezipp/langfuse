@@ -46,4 +46,10 @@ export class ScoreDeleteQueue {
 
     return ScoreDeleteQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.ScoreDelete]
+  > | null {
+    return ScoreDeleteQueue.instance;
+  }
 }

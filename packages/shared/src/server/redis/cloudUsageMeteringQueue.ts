@@ -70,4 +70,8 @@ export class CloudUsageMeteringQueue {
 
     return CloudUsageMeteringQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return CloudUsageMeteringQueue.instance;
+  }
 }

@@ -42,4 +42,8 @@ export class DataRetentionProcessingQueue {
 
     return DataRetentionProcessingQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return DataRetentionProcessingQueue.instance;
+  }
 }

@@ -47,4 +47,8 @@ export class DatasetDeleteQueue {
 
     return DatasetDeleteQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return DatasetDeleteQueue.instance;
+  }
 }

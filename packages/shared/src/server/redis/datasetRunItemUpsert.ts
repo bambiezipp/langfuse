@@ -49,4 +49,8 @@ export class DatasetRunItemUpsertQueue {
 
     return DatasetRunItemUpsertQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return DatasetRunItemUpsertQueue.instance;
+  }
 }

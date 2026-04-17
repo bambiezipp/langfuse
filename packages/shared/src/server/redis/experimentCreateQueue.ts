@@ -47,4 +47,8 @@ export class ExperimentCreateQueue {
 
     return ExperimentCreateQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return ExperimentCreateQueue.instance;
+  }
 }

@@ -50,4 +50,8 @@ export class CloudSpendAlertQueue {
 
     return CloudSpendAlertQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return CloudSpendAlertQueue.instance;
+  }
 }

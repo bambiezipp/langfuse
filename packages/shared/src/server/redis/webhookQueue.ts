@@ -47,4 +47,10 @@ export class WebhookQueue {
 
     return WebhookQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.WebhookQueue]
+  > | null {
+    return WebhookQueue.instance;
+  }
 }

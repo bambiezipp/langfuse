@@ -103,3 +103,82 @@ export function getQueue(
     }
   }
 }
+
+/**
+ * Returns an already-initialized Queue singleton, or null if getInstance()
+ * has not been called yet. Never creates Redis connections or triggers
+ * side effects.
+ */
+export function getExistingQueue(
+  queueName: Exclude<
+    QueueName,
+    | QueueName.IngestionQueue
+    | QueueName.IngestionSecondaryQueue
+    | QueueName.EvaluationExecution
+    | QueueName.EvaluationExecutionSecondaryQueue
+    | QueueName.LLMAsJudgeExecution
+    | QueueName.TraceUpsert
+    | QueueName.OtelIngestionQueue
+  >,
+): Queue | null {
+  switch (queueName) {
+    case QueueName.BatchExport:
+      return BatchExportQueue.getExistingInstance();
+    case QueueName.CloudUsageMeteringQueue:
+      return CloudUsageMeteringQueue.getExistingInstance();
+    case QueueName.CloudSpendAlertQueue:
+      return CloudSpendAlertQueue.getExistingInstance();
+    case QueueName.CloudFreeTierUsageThresholdQueue:
+      return CloudFreeTierUsageThresholdQueue.getExistingInstance();
+    case QueueName.DatasetRunItemUpsert:
+      return DatasetRunItemUpsertQueue.getExistingInstance();
+    case QueueName.DatasetDelete:
+      return DatasetDeleteQueue.getExistingInstance();
+    case QueueName.ExperimentCreate:
+      return ExperimentCreateQueue.getExistingInstance();
+    case QueueName.TraceDelete:
+      return TraceDeleteQueue.getExistingInstance();
+    case QueueName.ProjectDelete:
+      return ProjectDeleteQueue.getExistingInstance();
+    case QueueName.PostHogIntegrationQueue:
+      return PostHogIntegrationQueue.getExistingInstance();
+    case QueueName.PostHogIntegrationProcessingQueue:
+      return PostHogIntegrationProcessingQueue.getExistingInstance();
+    case QueueName.MixpanelIntegrationQueue:
+      return MixpanelIntegrationQueue.getExistingInstance();
+    case QueueName.MixpanelIntegrationProcessingQueue:
+      return MixpanelIntegrationProcessingQueue.getExistingInstance();
+    case QueueName.BlobStorageIntegrationQueue:
+      return BlobStorageIntegrationQueue.getExistingInstance();
+    case QueueName.BlobStorageIntegrationProcessingQueue:
+      return BlobStorageIntegrationProcessingQueue.getExistingInstance();
+    case QueueName.CoreDataS3ExportQueue:
+      return CoreDataS3ExportQueue.getExistingInstance();
+    case QueueName.MeteringDataPostgresExportQueue:
+      return MeteringDataPostgresExportQueue.getExistingInstance();
+    case QueueName.DataRetentionQueue:
+      return DataRetentionQueue.getExistingInstance();
+    case QueueName.DataRetentionProcessingQueue:
+      return DataRetentionProcessingQueue.getExistingInstance();
+    case QueueName.BatchActionQueue:
+      return BatchActionQueue.getExistingInstance();
+    case QueueName.CreateEvalQueue:
+      return CreateEvalQueue.getExistingInstance();
+    case QueueName.ScoreDelete:
+      return ScoreDeleteQueue.getExistingInstance();
+    case QueueName.DeadLetterRetryQueue:
+      return DeadLetterRetryQueue.getExistingInstance();
+    case QueueName.WebhookQueue:
+      return WebhookQueue.getExistingInstance();
+    case QueueName.EntityChangeQueue:
+      return EntityChangeQueue.getExistingInstance();
+    case QueueName.EventPropagationQueue:
+      return EventPropagationQueue.getExistingInstance();
+    case QueueName.NotificationQueue:
+      return NotificationQueue.getExistingInstance();
+    default: {
+      const _exhaustiveCheckDefault: never = queueName;
+      return null;
+    }
+  }
+}

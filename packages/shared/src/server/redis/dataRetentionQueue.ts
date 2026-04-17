@@ -57,4 +57,8 @@ export class DataRetentionQueue {
 
     return DataRetentionQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return DataRetentionQueue.instance;
+  }
 }

@@ -48,4 +48,8 @@ export class ProjectDeleteQueue {
 
     return ProjectDeleteQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return ProjectDeleteQueue.instance;
+  }
 }

@@ -59,4 +59,8 @@ export class PostHogIntegrationQueue {
 
     return PostHogIntegrationQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return PostHogIntegrationQueue.instance;
+  }
 }

@@ -13,7 +13,7 @@ import { WorkerManager } from "../../queues/workerManager";
 import {
   SHARDED_QUEUES,
   SHARDED_QUEUE_BASE_NAMES,
-  resolveQueueInstance,
+  resolveExistingQueueInstance,
 } from "../../queues/shardedQueueRegistry";
 
 type DepthType = "waiting" | "failed" | "active";
@@ -59,10 +59,10 @@ export class QueueMetricsRunner extends PeriodicRunner {
   }
 
   protected async execute(): Promise<void> {
-    // Only poll queues that have registered workers. This avoids calling
-    // getInstance() on queues this worker doesn't consume, which would
-    // create unnecessary Redis connections and can trigger side effects
-    // (e.g. CloudUsageMeteringQueue.getInstance() enqueues cron jobs).
+    // Only poll queues whose instances are already initialized. Uses
+    // getExistingInstance() which never creates Redis connections or
+    // triggers side effects (e.g. CloudUsageMeteringQueue.getInstance()
+    // enqueues cron jobs — getExistingInstance() does not).
     const registeredNames = new Set(WorkerManager.getRegisteredQueueNames());
     const promises: Promise<void>[] = [];
 
@@ -71,7 +71,7 @@ export class QueueMetricsRunner extends PeriodicRunner {
       if (SHARDED_QUEUE_BASE_NAMES.has(queueName)) continue;
       if (!registeredNames.has(queueName)) continue;
 
-      const queue = resolveQueueInstance(queueName);
+      const queue = resolveExistingQueueInstance(queueName);
       if (!queue) continue;
 
       const metricBase = convertQueueNameToMetricName(queueName);
@@ -115,7 +115,7 @@ export class QueueMetricsRunner extends PeriodicRunner {
       const metricBase = convertQueueNameToMetricName(config.baseQueueName);
 
       const shardPromises = shardNames.map((shardName) => {
-        const queue = config.getInstance(shardName);
+        const queue = config.getExistingInstance(shardName);
         if (!queue) return Promise.resolve(null);
 
         return collectDepth(queue)

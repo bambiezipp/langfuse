@@ -46,4 +46,8 @@ export class TraceDeleteQueue {
 
     return TraceDeleteQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return TraceDeleteQueue.instance;
+  }
 }

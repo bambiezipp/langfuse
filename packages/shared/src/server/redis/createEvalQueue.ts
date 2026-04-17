@@ -47,4 +47,10 @@ export class CreateEvalQueue {
 
     return CreateEvalQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.CreateEvalQueue]
+  > | null {
+    return CreateEvalQueue.instance;
+  }
 }

@@ -42,4 +42,8 @@ export class MixpanelIntegrationProcessingQueue {
 
     return MixpanelIntegrationProcessingQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return MixpanelIntegrationProcessingQueue.instance;
+  }
 }

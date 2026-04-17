@@ -47,4 +47,10 @@ export class BatchActionQueue {
 
     return BatchActionQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.BatchActionQueue]
+  > | null {
+    return BatchActionQueue.instance;
+  }
 }

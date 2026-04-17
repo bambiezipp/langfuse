@@ -47,4 +47,10 @@ export class NotificationQueue {
 
     return NotificationQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.NotificationQueue]
+  > | null {
+    return NotificationQueue.instance;
+  }
 }

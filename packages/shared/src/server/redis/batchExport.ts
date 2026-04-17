@@ -46,4 +46,8 @@ export class BatchExportQueue {
 
     return BatchExportQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return BatchExportQueue.instance;
+  }
 }

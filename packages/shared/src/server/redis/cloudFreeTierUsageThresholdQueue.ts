@@ -91,4 +91,8 @@ export class CloudFreeTierUsageThresholdQueue {
 
     return CloudFreeTierUsageThresholdQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return CloudFreeTierUsageThresholdQueue.instance;
+  }
 }

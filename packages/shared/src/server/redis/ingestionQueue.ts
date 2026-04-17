@@ -90,6 +90,12 @@ export class IngestionQueue {
 
     return queueInstance;
   }
+
+  public static getExistingInstance(shardName: string): Queue | null {
+    const shardIndex = this.getShardIndexFromShardName(shardName);
+    if (shardIndex === null) return null;
+    return this.instances.get(shardIndex) ?? null;
+  }
 }
 
 export class SecondaryIngestionQueue {
@@ -176,5 +182,11 @@ export class SecondaryIngestionQueue {
     SecondaryIngestionQueue.instances.set(shardIndex, queueInstance);
 
     return queueInstance;
+  }
+
+  public static getExistingInstance(shardName: string): Queue | null {
+    const shardIndex = this.getShardIndexFromShardName(shardName);
+    if (shardIndex === null) return null;
+    return this.instances.get(shardIndex) ?? null;
   }
 }

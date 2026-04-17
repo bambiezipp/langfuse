@@ -65,4 +65,8 @@ export class EventPropagationQueue {
 
     return EventPropagationQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return EventPropagationQueue.instance;
+  }
 }

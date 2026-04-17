@@ -57,4 +57,8 @@ export class DeadLetterRetryQueue {
 
     return DeadLetterRetryQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return DeadLetterRetryQueue.instance;
+  }
 }

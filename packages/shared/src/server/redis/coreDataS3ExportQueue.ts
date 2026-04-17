@@ -62,4 +62,8 @@ export class CoreDataS3ExportQueue {
 
     return CoreDataS3ExportQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return CoreDataS3ExportQueue.instance;
+  }
 }

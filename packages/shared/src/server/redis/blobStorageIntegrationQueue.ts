@@ -57,4 +57,8 @@ export class BlobStorageIntegrationQueue {
 
     return BlobStorageIntegrationQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return BlobStorageIntegrationQueue.instance;
+  }
 }

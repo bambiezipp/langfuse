@@ -65,4 +65,8 @@ export class MeteringDataPostgresExportQueue {
 
     return MeteringDataPostgresExportQueue.instance;
   }
+
+  public static getExistingInstance(): Queue | null {
+    return MeteringDataPostgresExportQueue.instance;
+  }
 }

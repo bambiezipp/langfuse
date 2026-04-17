@@ -94,4 +94,10 @@ export class TraceUpsertQueue {
 
     return queueInstance;
   }
+
+  public static getExistingInstance(shardName: string): Queue | null {
+    const shardIndex = this.getShardIndexFromShardName(shardName);
+    if (shardIndex === null) return null;
+    return this.instances.get(shardIndex) ?? null;
+  }
 }

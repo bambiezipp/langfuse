@@ -47,4 +47,10 @@ export class EntityChangeQueue {
 
     return EntityChangeQueue.instance;
   }
+
+  public static getExistingInstance(): Queue<
+    TQueueJobTypes[QueueName.EntityChangeQueue]
+  > | null {
+    return EntityChangeQueue.instance;
+  }
 }
