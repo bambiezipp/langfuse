@@ -253,14 +253,13 @@ if (env.QUEUE_CONSUMER_EVAL_EXECUTION_QUEUE_IS_ENABLED === "true") {
     );
   });
 
-  // LLM-as-Judge execution for observation-level evals (uses same env flag as trace evals)
   const llmAsJudgeShardNames = LLMAsJudgeExecutionQueue.getShardNames();
   llmAsJudgeShardNames.forEach((shardName) => {
     WorkerManager.register(
       shardName as QueueName,
       llmAsJudgeExecutionQueueProcessorBuilder(shardName),
       {
-        concurrency: env.LANGFUSE_EVAL_EXECUTION_WORKER_CONCURRENCY,
+        concurrency: env.LANGFUSE_LLM_AS_JUDGE_EXECUTION_WORKER_CONCURRENCY,
         lockDuration: 60000,
         stalledInterval: 120000,
         maxStalledCount: 3,
@@ -603,9 +602,7 @@ if (env.LANGFUSE_BATCH_PROJECT_CLEANER_ENABLED === "true") {
   for (const table of BATCH_DELETION_TABLES) {
     // Only start the events table cleaners if the events table experiment is enabled
     if (
-      (table !== "events_full" &&
-        table !== "events_core" &&
-        table !== "events") ||
+      (table !== "events_full" && table !== "events_core") ||
       env.LANGFUSE_EXPERIMENT_INSERT_INTO_EVENTS_TABLE === "true"
     ) {
       const cleaner = new BatchProjectCleaner(table);
@@ -622,9 +619,7 @@ if (env.LANGFUSE_BATCH_DATA_RETENTION_CLEANER_ENABLED === "true") {
   for (const table of BATCH_DATA_RETENTION_TABLES) {
     // Only start the events table cleaners if the events table experiment is enabled
     if (
-      (table !== "events_full" &&
-        table !== "events_core" &&
-        table !== "events") ||
+      (table !== "events_full" && table !== "events_core") ||
       env.LANGFUSE_EXPERIMENT_INSERT_INTO_EVENTS_TABLE === "true"
     ) {
       const cleaner = new BatchDataRetentionCleaner(table);
