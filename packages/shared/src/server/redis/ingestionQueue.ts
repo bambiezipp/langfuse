@@ -86,6 +86,21 @@ export class IngestionQueue {
       logger.error(`IngestionQueue shard ${shardIndex} error`, err);
     });
 
+    const globalConcurrency = env.LANGFUSE_INGESTION_QUEUE_GLOBAL_CONCURRENCY;
+    if (globalConcurrency > 0) {
+      queueInstance
+        ?.setGlobalConcurrency(globalConcurrency)
+        .catch((err) =>
+          logger.error(`Failed to set global concurrency for ${name}`, err),
+        );
+    } else {
+      queueInstance
+        ?.removeGlobalConcurrency()
+        .catch((err) =>
+          logger.error(`Failed to remove global concurrency for ${name}`, err),
+        );
+    }
+
     IngestionQueue.instances.set(shardIndex, queueInstance);
 
     return queueInstance;
