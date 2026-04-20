@@ -1,7 +1,7 @@
 import { type PreviewData } from "@/src/features/evals/hooks/usePreviewData";
 import { type VariableMapping } from "@/src/features/evals/utils/evaluator-form-utils";
 import { api } from "@/src/utils/api";
-import { trpcErrorToast } from "@/src/utils/trpcErrorToast";
+import { showErrorToast } from "@/src/features/notifications/showErrorToast";
 import { EvalTargetObject, extractValueFromObject } from "@langfuse/shared";
 import { useEffect, useState, useRef } from "react";
 
@@ -55,7 +55,11 @@ export function useExtractVariables({
   // Handle error toasts separately to avoid repeated toasts on re-renders
   useEffect(() => {
     if (extractionError) {
-      trpcErrorToast(extractionError);
+      showErrorToast(
+        "Failed to extract variable",
+        extractionError.message,
+        "WARNING",
+      );
     }
   }, [extractionError]);
 
