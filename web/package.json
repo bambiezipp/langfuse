@@ -103,7 +103,7 @@
     "@uiw/codemirror-themes": "^4.23.7",
     "@uiw/react-codemirror": "^4.25.8",
     "bcryptjs": "^2.4.3",
-    "bullmq": "^5.34.10",
+    "bullmq": "^5.74.1",
     "chroma-js": "^3.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
