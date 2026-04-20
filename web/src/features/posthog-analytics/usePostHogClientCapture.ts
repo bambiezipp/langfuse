@@ -131,7 +131,6 @@ export const events = {
     "delete_form_open",
     "delete_dataset_button_click",
     "update_form_open",
-    "delete_form_open",
     "new_form_open",
     "new_form_submit",
     "update_form_submit",
