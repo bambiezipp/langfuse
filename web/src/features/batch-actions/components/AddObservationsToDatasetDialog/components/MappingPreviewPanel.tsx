@@ -1,13 +1,16 @@
-import { useMemo, useEffect, useRef, type ReactNode } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import {
   ArrowDown,
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
-import { cn } from "@/src/utils/tailwind";
 import { JSONView } from "@/src/components/ui/CodeJsonViewer";
 import { Skeleton } from "@/src/components/ui/skeleton";
+import {
+  IssueList,
+  IssueItem,
+} from "@/src/features/batch-actions/components/AddObservationsToDatasetDialog/components/IssueBanner";
 import type {
   FieldMappingConfig,
   SourceField,
@@ -283,7 +286,7 @@ export function MappingPreviewPanel({
         {jsonPathErrors.length > 0 && config.mode !== "none" && (
           <IssueList variant="error" title="Invalid JSONPath:">
             {jsonPathErrors.map((err, idx) => (
-              <IssueItem key={idx} variant="error">
+              <IssueItem key={idx}>
                 <span className="font-mono">{err.jsonPath}</span>
                 {err.mappingKey ? ` (key: "${err.mappingKey}")` : ""}:{" "}
                 {err.message}
@@ -298,7 +301,7 @@ export function MappingPreviewPanel({
           validationResult.errors.length > 0 && (
             <IssueList variant="error" title="Schema validation errors:">
               {validationResult.errors.map((error, idx) => (
-                <IssueItem key={idx} variant="error">
+                <IssueItem key={idx}>
                   <span className="font-mono">{error.path || "root"}</span>:{" "}
                   {error.message}
                 </IssueItem>
@@ -313,7 +316,7 @@ export function MappingPreviewPanel({
             title="JSONPath warnings (preview observation):"
           >
             {jsonPathMisses.map((miss, idx) => (
-              <IssueItem key={idx} variant="warning">
+              <IssueItem key={idx}>
                 <span className="font-mono">{miss.jsonPath}</span> did not match
                 any data in {miss.sourceField}
                 {miss.mappingKey ? ` (key: "${miss.mappingKey}")` : ""}
@@ -323,53 +326,5 @@ export function MappingPreviewPanel({
         )}
       </div>
     </div>
-  );
-}
-
-type IssueVariant = "error" | "warning";
-
-const issueBoxStyles: Record<IssueVariant, string> = {
-  error: "border-destructive/50 bg-destructive/10",
-  warning: "border-amber-500/50 bg-amber-50 dark:bg-amber-950/30",
-};
-
-const issueTextStyles: Record<IssueVariant, string> = {
-  error: "text-destructive",
-  warning: "text-amber-600 dark:text-amber-500",
-};
-
-function IssueList({
-  variant,
-  title,
-  children,
-}: {
-  variant: IssueVariant;
-  title: string;
-  children: ReactNode;
-}) {
-  return (
-    <div
-      className={cn(
-        "max-h-[5vh] overflow-y-auto rounded-md border p-2",
-        issueBoxStyles[variant],
-      )}
-    >
-      <p className={cn("mb-1 text-xs font-medium", issueTextStyles[variant])}>
-        {title}
-      </p>
-      <ul className="space-y-0.5">{children}</ul>
-    </div>
-  );
-}
-
-function IssueItem({
-  variant,
-  children,
-}: {
-  variant: IssueVariant;
-  children: ReactNode;
-}) {
-  return (
-    <li className={cn("text-xs", issueTextStyles[variant])}>{children}</li>
   );
 }

@@ -1,11 +1,19 @@
 import { useMemo } from "react";
 import { Button } from "@/src/components/ui/button";
-import { AlertCircle, AlertTriangle, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 import { JSONView } from "@/src/components/ui/CodeJsonViewer";
 import { cn } from "@/src/utils/tailwind";
 import type { FinalPreviewStepProps, DialogStep } from "./types";
 import { applyFullMapping } from "@langfuse/shared";
 import type { MappingError } from "@langfuse/shared";
+import {
+  IssueBanner,
+  issueCardVariants,
+  issueChromeVariants,
+  issueIcons,
+  issueTextVariants,
+  type IssueVariant,
+} from "@/src/features/batch-actions/components/AddObservationsToDatasetDialog/components/IssueBanner";
 
 const STEP_FOR_FIELD: Record<string, DialogStep> = {
   input: "input-mapping",
@@ -69,9 +77,13 @@ export function FinalPreviewStep({
           variant="error"
           title="Some JSONPaths are invalid"
           description="Items using these mappings will be skipped during processing."
-          fields={errorFields}
-          onEditStep={onEditStep}
-        />
+        >
+          <EditMappingActions
+            variant="error"
+            fields={errorFields}
+            onEditStep={onEditStep}
+          />
+        </IssueBanner>
       )}
 
       {missFields.length > 0 && (
@@ -79,9 +91,13 @@ export function FinalPreviewStep({
           variant="warning"
           title="Some JSONPaths did not match the preview observation"
           description="Observations with failed mappings will be skipped during processing."
-          fields={missFields}
-          onEditStep={onEditStep}
-        />
+        >
+          <EditMappingActions
+            variant="warning"
+            fields={missFields}
+            onEditStep={onEditStep}
+          />
+        </IssueBanner>
       )}
 
       <div className="text-muted-foreground text-sm">
@@ -123,74 +139,34 @@ export function FinalPreviewStep({
   );
 }
 
-type IssueVariant = "error" | "warning";
-
-const bannerStyles: Record<
-  IssueVariant,
-  {
-    borderColor: string;
-    bg: string;
-    text: string;
-    subtext: string;
-    icon: typeof AlertCircle;
-  }
-> = {
-  error: {
-    borderColor: "border-destructive/50",
-    bg: "bg-destructive/10",
-    text: "text-destructive",
-    subtext: "text-destructive/80",
-    icon: AlertCircle,
-  },
-  warning: {
-    borderColor: "border-amber-500/50",
-    bg: "bg-amber-50 dark:bg-amber-950/30",
-    text: "text-amber-600 dark:text-amber-500",
-    subtext: "text-amber-600/80 dark:text-amber-500/80",
-    icon: AlertTriangle,
-  },
-};
-
-function IssueBanner({
+function EditMappingActions({
   variant,
-  title,
-  description,
   fields,
   onEditStep,
 }: {
   variant: IssueVariant;
-  title: string;
-  description: string;
   fields: string[];
   onEditStep: (step: DialogStep) => void;
 }) {
-  const s = bannerStyles[variant];
-  const Icon = s.icon;
   return (
-    <div className={cn("rounded-md border p-3", s.borderColor, s.bg)}>
-      <div className="flex items-start gap-2">
-        <Icon className={cn("mt-0.5 h-4 w-4 shrink-0", s.text)} />
-        <div className="space-y-1">
-          <p className={cn("text-sm font-medium", s.text)}>{title}</p>
-          <p className={cn("text-xs", s.subtext)}>{description}</p>
-          <div className="flex flex-wrap gap-2 pt-1">
-            {fields.map((field) => (
-              <Button
-                key={field}
-                variant="link"
-                size="sm"
-                className={cn("h-auto p-0 text-xs underline", s.text)}
-                onClick={() => {
-                  const step = STEP_FOR_FIELD[field];
-                  if (step) onEditStep(step);
-                }}
-              >
-                Edit {fieldLabel(field)} mapping
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-wrap gap-2 pt-1">
+      {fields.map((field) => (
+        <Button
+          key={field}
+          variant="link"
+          size="sm"
+          className={cn(
+            "h-auto p-0 text-xs underline",
+            issueTextVariants({ variant }),
+          )}
+          onClick={() => {
+            const step = STEP_FOR_FIELD[field];
+            if (step) onEditStep(step);
+          }}
+        >
+          Edit {fieldLabel(field)} mapping
+        </Button>
+      ))}
     </div>
   );
 }
@@ -212,14 +188,17 @@ function PreviewCard({
 }: PreviewCardProps) {
   const variant: IssueVariant | null =
     pathErrors.length > 0 ? "error" : pathMisses.length > 0 ? "warning" : null;
-  const s = variant ? bannerStyles[variant] : null;
-  const Icon = s?.icon;
+  const Icon = variant ? issueIcons[variant] : null;
 
   return (
-    <div className={cn("rounded-lg border", s?.borderColor)}>
+    <div className={issueCardVariants({ variant: variant ?? "none" })}>
       <div className="bg-muted/30 flex items-center justify-between border-b px-4 py-2">
         <span className="flex items-center gap-1.5 text-sm font-medium">
-          {Icon && s && <Icon className={cn("h-3.5 w-3.5", s.text)} />}
+          {Icon && variant && (
+            <Icon
+              className={cn("h-3.5 w-3.5", issueTextVariants({ variant }))}
+            />
+          )}
           {label}
         </span>
         <Button
@@ -239,9 +218,11 @@ function PreviewCard({
           <JSONView json={data} className="text-xs" />
         )}
       </div>
-      {variant && s && (
-        <div className={cn("border-t px-4 py-2", s.borderColor, s.bg)}>
-          <p className={cn("text-xs", s.text)}>
+      {variant && (
+        <div
+          className={cn("border-t px-4 py-2", issueChromeVariants({ variant }))}
+        >
+          <p className="text-xs">
             {[
               pathErrors.length > 0 &&
                 `${pathErrors.length} path${pathErrors.length !== 1 ? "s" : ""} have invalid syntax`,
