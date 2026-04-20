@@ -56,7 +56,7 @@ export function useExtractVariables({
   useEffect(() => {
     if (extractionError) {
       showErrorToast(
-        "Failed to extract variable",
+        "Invalid JSON path in variable mapping",
         extractionError.message,
         "WARNING",
       );
