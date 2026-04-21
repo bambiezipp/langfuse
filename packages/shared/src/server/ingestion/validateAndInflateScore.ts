@@ -24,8 +24,13 @@ export async function validateAndInflateScore(
 ) {
   const { body, projectId, scoreId } = params;
 
-  // Applies to both the REST create-score path and the ingestion/SDK path:
-  // ANNOTATION scores need a config to render in the annotation queue UI,
+  // Enforced on every score write, regardless of entry point:
+  //   - POST /api/public/scores (REST, one score)
+  //   - POST /api/public/ingestion (batch, used by SDKs)
+  // Both enqueue events that eventually run through this function in the worker,
+  // so placing the check here catches all of them.
+  //
+  // ANNOTATION scores need a configId to render in the annotation queue UI,
   // except CORRECTION scores, which never carry a configId by design.
   if (
     body.source === ScoreSourceEnum.ANNOTATION &&
