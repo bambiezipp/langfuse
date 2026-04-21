@@ -47,8 +47,10 @@ export const fieldHasJsonSelectorOption = (
   selectedColumnId === "metadata" ||
   selectedColumnId === "expected_output" ||
   selectedColumnId === "experiment_item_expected_output" ||
+  selectedColumnId === "experiment_item_metadata" ||
   selectedColumnId === "expectedOutput" ||
-  selectedColumnId === "experimentItemExpectedOutput";
+  selectedColumnId === "experimentItemExpectedOutput" ||
+  selectedColumnId === "experimentItemMetadata";
 
 export const getTargetDisplayName = (target: string): string => {
   switch (target) {
