@@ -23,6 +23,10 @@ type ExtractedVariable = {
   value: unknown;
 };
 
+type ExtractionError =
+  | { kind: "jsonPath"; message: string }
+  | { kind: "unexpected"; message: string };
+
 export function useExtractVariables({
   variables,
   variableMapping,
@@ -39,7 +43,8 @@ export function useExtractVariables({
     ExtractedVariable[]
   >([]);
   const [isExtracting, setIsExtracting] = useState(false);
-  const [extractionError, setExtractionError] = useState<Error | null>(null);
+  const [extractionError, setExtractionError] =
+    useState<ExtractionError | null>(null);
   const previousMappingRef = useRef<string>("");
 
   // Create a stable string representation of the current mapping for comparison
@@ -54,13 +59,12 @@ export function useExtractVariables({
 
   // Handle error toasts separately to avoid repeated toasts on re-renders
   useEffect(() => {
-    if (extractionError) {
-      showErrorToast(
-        "Invalid JSONPath in variable mapping",
-        extractionError.message,
-        "WARNING",
-      );
-    }
+    if (!extractionError) return;
+    const title =
+      extractionError.kind === "jsonPath"
+        ? "Invalid JSONPath in variable mapping"
+        : "Failed to extract variable";
+    showErrorToast(title, extractionError.message, "WARNING");
   }, [extractionError]);
 
   useEffect(() => {
@@ -178,7 +182,7 @@ export function useExtractVariables({
           const message = firstError.jsonSelector
             ? `${firstError.jsonSelector}: ${baseMessage}`
             : baseMessage;
-          setExtractionError(new Error(message));
+          setExtractionError({ kind: "jsonPath", message });
         }
         setExtractedVariables(results);
         // Update the ref to the current mapping string to track changes
@@ -186,7 +190,10 @@ export function useExtractVariables({
       })
       .catch((error) => {
         console.error("Error extracting variables:", error);
-        setExtractionError(error);
+        setExtractionError({
+          kind: "unexpected",
+          message: error instanceof Error ? error.message : "Unknown error",
+        });
         setExtractedVariables(
           variables.map((variable) => ({
             variable,

@@ -225,7 +225,7 @@ function PreviewCard({
           <p className="text-xs">
             {[
               pathErrors.length > 0 &&
-                `${pathErrors.length} path${pathErrors.length !== 1 ? "s" : ""} have invalid syntax`,
+                `${pathErrors.length} path${pathErrors.length !== 1 ? "s have" : " has"} invalid syntax`,
               pathMisses.length > 0 &&
                 `${pathMisses.length} path${pathMisses.length !== 1 ? "s" : ""} did not match in preview observation`,
             ]
