@@ -1241,10 +1241,9 @@ export default function ObservationsEventsTable({
       itemType: "TRACE",
       customTitlePrefix: "Observation ID:",
       detailNavigationKey: "observations",
-      children: <PeekViewObservationDetail projectId={projectId} />,
       ...peekNavigationProps,
     };
-  }, [projectId, peekNavigationProps, hideControls]);
+  }, [peekNavigationProps, hideControls]);
 
   const rows: EventsTableRow[] = useMemo(() => {
     const result =
@@ -1530,7 +1529,11 @@ export default function ObservationsEventsTable({
             />
           </div>
         </ResizableFilterLayout>
-        {peekConfig && <TablePeekView peekView={peekConfig} />}
+        {peekConfig && (
+          <TablePeekView {...peekConfig}>
+            <PeekViewObservationDetail projectId={projectId} />
+          </TablePeekView>
+        )}
       </div>
 
       {showRunEvaluationDialog && (

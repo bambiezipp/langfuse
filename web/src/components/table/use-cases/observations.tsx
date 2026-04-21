@@ -1308,10 +1308,9 @@ export default function ObservationsTable({
       itemType: "TRACE",
       customTitlePrefix: "Observation ID:",
       detailNavigationKey: "observations",
-      children: <PeekViewObservationDetail projectId={projectId} />,
       ...peekNavigationProps,
     };
-  }, [projectId, peekNavigationProps, hideControls]);
+  }, [peekNavigationProps, hideControls]);
 
   const rows: ObservationsTableRow[] = useMemo(() => {
     return generations.isSuccess
@@ -1519,7 +1518,11 @@ export default function ObservationsTable({
             />
           </div>
         </ResizableFilterLayout>
-        {peekConfig && <TablePeekView peekView={peekConfig} />}
+        {peekConfig && (
+          <TablePeekView {...peekConfig}>
+            <PeekViewObservationDetail projectId={projectId} />
+          </TablePeekView>
+        )}
       </div>
 
       {/* Add to Dataset Dialog */}

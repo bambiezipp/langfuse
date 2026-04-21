@@ -504,16 +504,14 @@ export const SessionPage: React.FC<{
         </div>
       </div>
       <TablePeekView
-        peekView={{
-          itemType: "TRACE",
-          detailNavigationKey: "traces",
-          openPeek,
-          closePeek,
-          expandPeek,
-          resolveDetailNavigationPath,
-          children: <PeekViewTraceDetail projectId={projectId} />,
-        }}
-      />
+        itemType="TRACE"
+        detailNavigationKey="traces"
+        closePeek={closePeek}
+        expandPeek={expandPeek}
+        resolveDetailNavigationPath={resolveDetailNavigationPath}
+      >
+        <PeekViewTraceDetail projectId={projectId} />
+      </TablePeekView>
     </Page>
   );
 };
@@ -1030,16 +1028,14 @@ export const SessionEventsPage: React.FC<{
         </div>
       </div>
       <TablePeekView
-        peekView={{
-          itemType: "TRACE",
-          detailNavigationKey: "traces",
-          openPeek,
-          closePeek,
-          expandPeek,
-          resolveDetailNavigationPath,
-          children: <PeekViewTraceDetail projectId={projectId} />,
-        }}
-      />
+        itemType="TRACE"
+        detailNavigationKey="traces"
+        closePeek={closePeek}
+        expandPeek={expandPeek}
+        resolveDetailNavigationPath={resolveDetailNavigationPath}
+      >
+        <PeekViewTraceDetail projectId={projectId} />
+      </TablePeekView>
     </Page>
   );
 };

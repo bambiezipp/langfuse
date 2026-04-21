@@ -1299,10 +1299,9 @@ export default function TracesTable({
       peekEventOptions: {
         ignoredSelectors: ['[role="checkbox"]', '[aria-label="bookmark"]'],
       },
-      children: <PeekViewTraceDetail projectId={projectId} />,
       ...peekNavigationProps,
     };
-  }, [projectId, hideControls, peekNavigationProps]);
+  }, [hideControls, peekNavigationProps]);
 
   // Create ref-based wrapper to avoid stale closure when queryFilter updates
   const queryFilterRef = useRef(queryFilter);
@@ -1503,7 +1502,11 @@ export default function TracesTable({
             />
           </div>
         </ResizableFilterLayout>
-        {peekConfig && <TablePeekView peekView={peekConfig} />}
+        {peekConfig && (
+          <TablePeekView {...peekConfig}>
+            <PeekViewTraceDetail projectId={projectId} />
+          </TablePeekView>
+        )}
       </div>
     </DataTableControlsProvider>
   );

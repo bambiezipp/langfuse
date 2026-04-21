@@ -53,12 +53,6 @@ export type DataTablePeekViewProps = {
   expandPeek?: (openInNewTab: boolean) => void;
   /** Additional peek event options */
   peekEventOptions?: PeekEventControlOptions;
-
-  // Content
-  /**
-   * The content to display in the peek view.
-   */
-  children: React.ReactNode;
 };
 
 export const createPeekEventHandler = (options?: PeekEventControlOptions) => {
@@ -76,12 +70,26 @@ export const createPeekEventHandler = (options?: PeekEventControlOptions) => {
   };
 };
 
-type TablePeekViewProps = {
-  peekView: DataTablePeekViewProps;
+type TablePeekViewProps = Pick<
+  DataTablePeekViewProps,
+  | "itemType"
+  | "detailNavigationKey"
+  | "customTitlePrefix"
+  | "resolveDetailNavigationPath"
+  | "closePeek"
+  | "expandPeek"
+  | "peekEventOptions"
+> & {
+  // Content
+  /**
+   * The content to display in the peek view.
+   */
+  children: React.ReactNode;
 };
 
 function TablePeekViewComponent(props: TablePeekViewProps) {
-  const { peekView } = props;
+  const peekView = props;
+  const { children } = props;
   const router = useRouter();
   const eventHandler = createPeekEventHandler(peekView.peekEventOptions);
   const itemId = router.query.peek as string | undefined;
@@ -160,7 +168,7 @@ function TablePeekViewComponent(props: TablePeekViewProps) {
         <PeekTableStateProvider>
           <div className="flex max-h-full min-h-0 flex-1 flex-col">
             <div className="flex-1 overflow-auto" key={itemId}>
-              {peekView.children}
+              {children}
             </div>
           </div>
         </PeekTableStateProvider>

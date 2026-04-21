@@ -115,12 +115,11 @@ function DatasetCompareRunsTableInternal(props: {
   const peekConfig = useMemo(
     () => ({
       itemType: "TRACE" as const,
-      children: <PeekViewTraceDetail projectId={props.projectId} />,
       closePeek,
       expandPeek,
       // openPeek is handled by DatasetAggregateTableCell's custom handleOpenPeek
     }),
-    [props.projectId, closePeek, expandPeek],
+    [closePeek, expandPeek],
   );
 
   const { runAggregateColumns, isLoading: cellsLoading } =
@@ -302,7 +301,9 @@ function DatasetCompareRunsTableInternal(props: {
         }}
         peekView={peekConfig}
       />
-      <TablePeekView peekView={peekConfig} />
+      <TablePeekView {...peekConfig}>
+        <PeekViewTraceDetail projectId={props.projectId} />
+      </TablePeekView>
     </>
   );
 }

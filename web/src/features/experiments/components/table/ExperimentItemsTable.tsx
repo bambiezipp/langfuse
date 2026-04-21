@@ -901,10 +901,9 @@ export default function ExperimentItemsTable({
       itemType: "TRACE",
       customTitlePrefix: "Experiment Item:",
       detailNavigationKey: "experiment-items",
-      children: <PeekViewObservationDetail projectId={projectId} />,
       ...peekNavigationProps,
     };
-  }, [projectId, peekNavigationProps, canUsePeek]);
+  }, [peekNavigationProps, canUsePeek]);
 
   const rows: ExperimentItemsTableRow[] = useMemo(() => {
     if (items.status === "success" && items.rows) {
@@ -1136,7 +1135,11 @@ export default function ExperimentItemsTable({
         </ResizableFilterLayout>
 
         {/* Peek view panel */}
-        {peekConfig && <TablePeekView peekView={peekConfig} />}
+        {peekConfig && (
+          <TablePeekView {...peekConfig}>
+            <PeekViewObservationDetail projectId={projectId} />
+          </TablePeekView>
+        )}
 
         {/* Run Evaluation Dialog */}
         {showRunEvaluationDialog && (
