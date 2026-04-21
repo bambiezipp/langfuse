@@ -1206,30 +1206,30 @@ export class IngestionService {
             }
 
             // Tracing
-            newInputCount
-              ? span.setAttribute(
-                  "langfuse.tokenization.input-count",
-                  newInputCount,
-                )
-              : undefined;
-            newOutputCount
-              ? span.setAttribute(
-                  "langfuse.tokenization.output-count",
-                  newOutputCount,
-                )
-              : undefined;
-            newInputCount || newOutputCount
-              ? span.setAttribute(
-                  "langfuse.tokenization.tokenizer",
-                  model.tokenizerId || "unknown",
-                )
-              : undefined;
-            newInputCount
-              ? recordIncrement("langfuse.tokenisedTokens", newInputCount)
-              : undefined;
-            newOutputCount
-              ? recordIncrement("langfuse.tokenisedTokens", newOutputCount)
-              : undefined;
+            if (newInputCount) {
+              span.setAttribute(
+                "langfuse.tokenization.input-count",
+                newInputCount,
+              );
+            }
+            if (newOutputCount) {
+              span.setAttribute(
+                "langfuse.tokenization.output-count",
+                newOutputCount,
+              );
+            }
+            if (newInputCount || newOutputCount) {
+              span.setAttribute(
+                "langfuse.tokenization.tokenizer",
+                model.tokenizerId || "unknown",
+              );
+            }
+            if (newInputCount) {
+              recordIncrement("langfuse.tokenisedTokens", newInputCount);
+            }
+            if (newOutputCount) {
+              recordIncrement("langfuse.tokenisedTokens", newOutputCount);
+            }
           },
         );
 

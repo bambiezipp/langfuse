@@ -1,0 +1,26 @@
+{
+  "$schema": "../node_modules/oxlint/configuration_schema.json",
+  "extends": [
+    "../packages/config-oxlint/index.json"
+  ],
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**",
+    ".next/**",
+    ".*",
+    "**/*test*.*",
+    "**/worker-thread.js"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "src/__tests__/chatml/framework-traces/download_traces.js"
+      ],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ]
+}

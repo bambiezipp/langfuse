@@ -1,0 +1,22 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [],
+  "categories": {
+    "correctness": "off"
+  },
+  "ignorePatterns": [
+    ".git/**",
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
+    ".context/**",
+    ".cursor/**",
+    ".next/**",
+    ".next-check/**",
+    "generated/**",
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**"
+  ]
+}

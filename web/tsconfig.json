@@ -25,7 +25,6 @@
     "**/*.mjs",
     "**/*.ts",
     "**/*.tsx",
-    ".eslintrc.js",
     ".next/types/**/*.ts",
     "next-env.d.ts",
     "next-env.d.ts",

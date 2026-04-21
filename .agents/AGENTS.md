@@ -82,6 +82,7 @@ langfuse/
   - Postgres schema: `packages/shared/prisma/schema.prisma`
   - ClickHouse migrations:
     `packages/shared/clickhouse/migrations/{clustered,unclustered}/*.sql`
+  - Shared lint presets: `packages/config-oxlint/{base,index,next}.json`
 - Architecture handbook:
   [langfuse.com/handbook/product-engineering/architecture](https://langfuse.com/handbook/product-engineering/architecture)
   with source markdown in
@@ -93,7 +94,7 @@ langfuse/
 - Dev all packages: `pnpm run dev`
 - Dev web only: `pnpm run dev:web`
 - Dev worker only: `pnpm run dev:worker`
-- Lint all: `pnpm run lint`
+- Lint all: `pnpm run lint` (Oxlint)
 - Typecheck all: `pnpm run typecheck` / `pnpm tc`
 - Build check: `pnpm run build:check`
 - Full build: `pnpm run build`

@@ -1,0 +1,11 @@
+{
+  "name": "@repo/oxlint-config",
+  "version": "0.0.0",
+  "license": "MIT",
+  "private": true,
+  "files": [
+    "base.json",
+    "index.json",
+    "next.json"
+  ]
+}
