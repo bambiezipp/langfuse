@@ -184,6 +184,28 @@ export type EventsTableProps = {
   sessionId?: string;
 };
 
+const TracePeekView = (
+  props: Omit<
+    React.ComponentProps<typeof TablePeekView>,
+    "children" | "title"
+  > & {
+    projectId: string;
+  },
+) => {
+  const router = useRouter();
+  const traceId =
+    typeof router.query.traceId === "string" ? router.query.traceId : undefined;
+
+  return (
+    <TablePeekView
+      {...props}
+      title={traceId ? `Trace ID: ${traceId}` : undefined}
+    >
+      <PeekViewObservationDetail projectId={props.projectId} />
+    </TablePeekView>
+  );
+};
+
 export default function ObservationsEventsTable({
   projectId,
   userId,
@@ -1239,7 +1261,6 @@ export default function ObservationsEventsTable({
     if (hideControls) return undefined;
     return {
       itemType: "TRACE",
-      customTitlePrefix: "Observation ID:",
       detailNavigationKey: "observations",
       ...peekNavigationProps,
     };
@@ -1529,11 +1550,7 @@ export default function ObservationsEventsTable({
             />
           </div>
         </ResizableFilterLayout>
-        {peekConfig && (
-          <TablePeekView {...peekConfig}>
-            <PeekViewObservationDetail projectId={projectId} />
-          </TablePeekView>
-        )}
+        {peekConfig && <TracePeekView {...peekConfig} projectId={projectId} />}
       </div>
 
       {showRunEvaluationDialog && (

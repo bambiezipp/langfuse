@@ -152,6 +152,28 @@ export type ObservationsTableProps = {
   limitRows?: number;
 };
 
+const TracePeekView = (
+  props: Omit<
+    React.ComponentProps<typeof TablePeekView>,
+    "children" | "title"
+  > & {
+    projectId: string;
+  },
+) => {
+  const router = useRouter();
+  const traceId =
+    typeof router.query.traceId === "string" ? router.query.traceId : undefined;
+
+  return (
+    <TablePeekView
+      {...props}
+      title={traceId ? `Trace ID: ${traceId}` : undefined}
+    >
+      <PeekViewObservationDetail projectId={props.projectId} />
+    </TablePeekView>
+  );
+};
+
 export default function ObservationsTable({
   projectId,
   promptName,
@@ -1306,7 +1328,6 @@ export default function ObservationsTable({
     if (hideControls) return undefined;
     return {
       itemType: "TRACE",
-      customTitlePrefix: "Observation ID:",
       detailNavigationKey: "observations",
       ...peekNavigationProps,
     };
@@ -1518,11 +1539,7 @@ export default function ObservationsTable({
             />
           </div>
         </ResizableFilterLayout>
-        {peekConfig && (
-          <TablePeekView {...peekConfig}>
-            <PeekViewObservationDetail projectId={projectId} />
-          </TablePeekView>
-        )}
+        {peekConfig && <TracePeekView {...peekConfig} projectId={projectId} />}
       </div>
 
       {/* Add to Dataset Dialog */}

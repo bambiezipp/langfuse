@@ -63,6 +63,7 @@ import { ExperimentCompareTable } from "./ExperimentCompareTable";
 import { useExperimentNames } from "@/src/features/experiments/hooks/useExperimentNames";
 import { DiffLabel } from "@/src/features/datasets/components/DiffLabel";
 import { computeScoreDiffs } from "@/src/features/datasets/lib/computeScoreDiffs";
+import { useRouter } from "next/router";
 
 const renderExperimentSpecificHeader = (label: string) => (
   <span className="text-muted-foreground">{label}</span>
@@ -226,6 +227,7 @@ export default function ExperimentItemsTable({
   projectId,
   hideControls = false,
 }: ExperimentItemsTableProps) {
+  const router = useRouter();
   const { setDetailPageList } = useDetailPageLists();
   const [selectedRows, setSelectedRows] = useState<RowSelectionState>({});
   const [showRunEvaluationDialog, setShowRunEvaluationDialog] = useState(false);
@@ -899,11 +901,13 @@ export default function ExperimentItemsTable({
     if (!canUsePeek) return undefined;
     return {
       itemType: "TRACE",
-      customTitlePrefix: "Experiment Item:",
       detailNavigationKey: "experiment-items",
       ...peekNavigationProps,
     };
   }, [peekNavigationProps, canUsePeek]);
+
+  const peekId =
+    typeof router.query.peek === "string" ? router.query.peek : undefined;
 
   const rows: ExperimentItemsTableRow[] = useMemo(() => {
     if (items.status === "success" && items.rows) {
@@ -1136,7 +1140,10 @@ export default function ExperimentItemsTable({
 
         {/* Peek view panel */}
         {peekConfig && (
-          <TablePeekView {...peekConfig}>
+          <TablePeekView
+            {...peekConfig}
+            title={peekId ? `Experiment Item: ${peekId}` : undefined}
+          >
             <PeekViewObservationDetail projectId={projectId} />
           </TablePeekView>
         )}

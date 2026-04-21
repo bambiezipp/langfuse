@@ -37,8 +37,6 @@ export type DataTablePeekViewProps = {
   itemType: PeekViewItemType;
   /** Key used for detail page navigation */
   detailNavigationKey?: string;
-  /** Custom prefix for the peek view title */
-  customTitlePrefix?: string;
 
   // Navigation and URL handling
   /** Function to resolve the navigation path for a list entry */
@@ -74,12 +72,12 @@ type TablePeekViewProps = Pick<
   DataTablePeekViewProps,
   | "itemType"
   | "detailNavigationKey"
-  | "customTitlePrefix"
   | "resolveDetailNavigationPath"
   | "closePeek"
   | "expandPeek"
   | "peekEventOptions"
 > & {
+  title?: string;
   // Content
   /**
    * The content to display in the peek view.
@@ -89,7 +87,7 @@ type TablePeekViewProps = Pick<
 
 function TablePeekViewComponent(props: TablePeekViewProps) {
   const peekView = props;
-  const { children } = props;
+  const { title, children } = props;
   const router = useRouter();
   const eventHandler = createPeekEventHandler(peekView.peekEventOptions);
   const itemId = router.query.peek as string | undefined;
@@ -121,9 +119,7 @@ function TablePeekViewComponent(props: TablePeekViewProps) {
               className="truncate text-sm font-medium focus:outline-hidden"
               tabIndex={0}
             >
-              {peekView.customTitlePrefix
-                ? `${peekView.customTitlePrefix} ${itemId}`
-                : itemId}
+              {title ?? itemId}
             </span>
           </SheetTitle>
           <div
