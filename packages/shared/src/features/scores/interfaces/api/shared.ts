@@ -4,8 +4,11 @@ import { stringDateTime } from "../../../../utils/typeChecks";
 import { applyScoreValidation } from "../../../../utils/scores";
 import { PostScoreBodyFoundationSchema } from "../shared";
 import {
+  PublicApiCreateScoreSourceDomain,
   ScoreDataTypeDomain,
+  ScoreDataTypeEnum,
   ScoreSourceDomain,
+  ScoreSourceEnum,
   TEXT_SCORE_MAX_LENGTH,
 } from "../../../../domain/scores";
 import { singleFilter } from "../../../../interfaces/filters";
@@ -90,7 +93,7 @@ export const GetScoresQuery = z.object({
  */
 export const PostScoresBody = applyScoreValidation(
   PostScoreBodyFoundationSchema.extend({
-    source: z.enum(["API", "ANNOTATION"]).default("API"),
+    source: PublicApiCreateScoreSourceDomain.default(ScoreSourceEnum.API),
   }).and(
     z.discriminatedUnion("dataType", [
       z.object({
@@ -133,8 +136,8 @@ export const PostScoresBody = applyScoreValidation(
   // the request synchronously with 400. The ingestion/SDK path relies on the
   // check in validateAndInflateScore, where the write is dropped async.
   (data) =>
-    data.source !== "ANNOTATION" ||
-    data.dataType === "CORRECTION" ||
+    data.source !== ScoreSourceEnum.ANNOTATION ||
+    data.dataType === ScoreDataTypeEnum.CORRECTION ||
     !!data.configId,
   {
     message:

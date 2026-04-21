@@ -5,6 +5,7 @@ import {
   type ScoreDomain,
   ScorePropsAgainstConfig,
   ScoreDataTypeEnum,
+  ScoreSourceEnum,
   CORRECTION_NAME,
 } from "../../../src";
 import { prisma } from "../../db";
@@ -27,7 +28,7 @@ export async function validateAndInflateScore(
   // ANNOTATION scores need a config to render in the annotation queue UI,
   // except CORRECTION scores, which never carry a configId by design.
   if (
-    body.source === "ANNOTATION" &&
+    body.source === ScoreSourceEnum.ANNOTATION &&
     !body.configId &&
     body.dataType !== ScoreDataTypeEnum.CORRECTION
   ) {

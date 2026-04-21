@@ -10,6 +10,23 @@ export const ScoreSourceEnum = {
 export const ScoreSourceDomain = z.enum(ScoreSourceArray);
 export type ScoreSourceType = z.infer<typeof ScoreSourceDomain>;
 
+/**
+ * Subset of score sources that external callers may set when creating a score
+ * via the public REST API. EVAL is reserved for internal evaluator outputs and
+ * is intentionally excluded. The `satisfies` clause guarantees this stays a
+ * subset of {@link ScoreSourceArray} at compile time.
+ */
+export const PublicApiCreateScoreSourceArray = [
+  ScoreSourceEnum.API,
+  ScoreSourceEnum.ANNOTATION,
+] as const satisfies readonly ScoreSourceType[];
+export const PublicApiCreateScoreSourceDomain = z.enum(
+  PublicApiCreateScoreSourceArray,
+);
+export type PublicApiCreateScoreSourceType = z.infer<
+  typeof PublicApiCreateScoreSourceDomain
+>;
+
 export const CORRECTION_NAME = "output" as const;
 
 export const TEXT_SCORE_MAX_LENGTH = 500 as const;
