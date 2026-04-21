@@ -1,11 +1,12 @@
 import {
+  ANNOTATION_SCORE_REQUIRES_CONFIG_ID_MESSAGE,
+  isAnnotationScoreMissingConfigId,
   ScoreBodyWithoutConfig,
   ScoreConfigDomain,
   type ScoreDataTypeType,
   type ScoreDomain,
   ScorePropsAgainstConfig,
   ScoreDataTypeEnum,
-  ScoreSourceEnum,
   CORRECTION_NAME,
 } from "../../../src";
 import { prisma } from "../../db";
@@ -24,22 +25,11 @@ export async function validateAndInflateScore(
 ) {
   const { body, projectId, scoreId } = params;
 
-  // Enforced on every score write, regardless of entry point:
-  //   - POST /api/public/scores (REST, one score)
-  //   - POST /api/public/ingestion (batch, used by SDKs)
-  // Both enqueue events that eventually run through this function in the worker,
-  // so placing the check here catches all of them.
-  //
-  // ANNOTATION scores need a configId to render in the annotation queue UI,
-  // except CORRECTION scores, which never carry a configId by design.
-  if (
-    body.source === ScoreSourceEnum.ANNOTATION &&
-    !body.configId &&
-    body.dataType !== ScoreDataTypeEnum.CORRECTION
-  ) {
-    throw new InvalidRequestError(
-      "configId is required when source is ANNOTATION (except for CORRECTION scores).",
-    );
+  // Central choke point: both POST /api/public/scores and
+  // POST /api/public/ingestion enqueue events that run through this function
+  // in the worker, so enforcing here covers both entry points.
+  if (isAnnotationScoreMissingConfigId(body)) {
+    throw new InvalidRequestError(ANNOTATION_SCORE_REQUIRES_CONFIG_ID_MESSAGE);
   }
 
   if (body.configId) {

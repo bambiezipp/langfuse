@@ -4,9 +4,10 @@ import { stringDateTime } from "../../../../utils/typeChecks";
 import { applyScoreValidation } from "../../../../utils/scores";
 import { PostScoreBodyFoundationSchema } from "../shared";
 import {
+  ANNOTATION_SCORE_REQUIRES_CONFIG_ID_MESSAGE,
+  isAnnotationScoreMissingConfigId,
   PublicApiCreateScoreSourceDomain,
   ScoreDataTypeDomain,
-  ScoreDataTypeEnum,
   ScoreSourceDomain,
   ScoreSourceEnum,
   TEXT_SCORE_MAX_LENGTH,
@@ -78,19 +79,8 @@ export const GetScoresQuery = z.object({
 });
 
 // POST /scores
-/**
- * Source values accepted on the public REST create-score endpoint. EVAL is
- * reserved for internal evaluator outputs (written via the ingestion path), so
- * we do not expose it here.
- *
- * When source is ANNOTATION, a configId is required unless dataType is
- * CORRECTION. That constraint is enforced centrally in validateAndInflateScore
- * so it also applies to ingestion/SDK callers.
- *
- * PostScoresBody roughly mirrors ScoreBody in
- * `packages/shared/src/server/ingestion/types.ts` — keep them in sync for
- * fields that cross both surfaces.
- */
+// Roughly mirrors ScoreBody in `packages/shared/src/server/ingestion/types.ts`;
+// keep them in sync for fields that cross both surfaces.
 export const PostScoresBody = applyScoreValidation(
   PostScoreBodyFoundationSchema.extend({
     source: PublicApiCreateScoreSourceDomain.default(ScoreSourceEnum.API),
@@ -131,20 +121,10 @@ export const PostScoresBody = applyScoreValidation(
       }),
     ]),
   ),
-).refine(
-  // Mirrors the check in validateAndInflateScore so the REST endpoint can fail
-  // the request synchronously with 400. The ingestion/SDK path relies on the
-  // check in validateAndInflateScore, where the write is dropped async.
-  (data) =>
-    data.source !== ScoreSourceEnum.ANNOTATION ||
-    data.dataType === ScoreDataTypeEnum.CORRECTION ||
-    !!data.configId,
-  {
-    message:
-      "configId is required when source is ANNOTATION (except for CORRECTION scores).",
-    path: ["configId"],
-  },
-);
+).refine((data) => !isAnnotationScoreMissingConfigId(data), {
+  message: ANNOTATION_SCORE_REQUIRES_CONFIG_ID_MESSAGE,
+  path: ["configId"],
+});
 
 export const PostScoresResponse = z.object({ id: z.string() });
 

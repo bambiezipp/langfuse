@@ -11,21 +11,33 @@ export const ScoreSourceDomain = z.enum(ScoreSourceArray);
 export type ScoreSourceType = z.infer<typeof ScoreSourceDomain>;
 
 /**
- * Subset of score sources that external callers may set when creating a score
- * via the public REST API. EVAL is reserved for internal evaluator outputs and
- * is intentionally excluded. The `satisfies` clause guarantees this stays a
- * subset of {@link ScoreSourceArray} at compile time.
+ * Source values external callers may set on the public create-score endpoint.
+ * EVAL is reserved for internal evaluator outputs. The `satisfies` clause
+ * keeps this a provable subset of {@link ScoreSourceArray} at compile time.
  */
-export const PublicApiCreateScoreSourceArray = [
+export const PublicApiCreateScoreSourceDomain = z.enum([
   ScoreSourceEnum.API,
   ScoreSourceEnum.ANNOTATION,
-] as const satisfies readonly ScoreSourceType[];
-export const PublicApiCreateScoreSourceDomain = z.enum(
-  PublicApiCreateScoreSourceArray,
-);
-export type PublicApiCreateScoreSourceType = z.infer<
-  typeof PublicApiCreateScoreSourceDomain
->;
+] as const satisfies readonly ScoreSourceType[]);
+
+/**
+ * Annotation scores need a matching score config so they can render in the
+ * annotation queue UI. CORRECTION scores are the one exception — by design
+ * they never carry a configId. This predicate + message are shared by the
+ * zod refine on {@link PostScoresBody} (sync 400 on REST) and the check in
+ * `validateAndInflateScore` (async drop for ingestion/SDK callers).
+ */
+export const ANNOTATION_SCORE_REQUIRES_CONFIG_ID_MESSAGE =
+  "configId is required when source is ANNOTATION (except for CORRECTION scores).";
+
+export const isAnnotationScoreMissingConfigId = (body: {
+  source?: ScoreSourceType | null;
+  configId?: string | null;
+  dataType?: ScoreDataTypeType;
+}): boolean =>
+  body.source === ScoreSourceEnum.ANNOTATION &&
+  !body.configId &&
+  body.dataType !== ScoreDataTypeEnum.CORRECTION;
 
 export const CORRECTION_NAME = "output" as const;
 
