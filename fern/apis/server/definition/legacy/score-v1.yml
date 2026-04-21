@@ -46,6 +46,9 @@ types:
       configId:
         type: optional<string>
         docs: Reference a score config on a score. The unique langfuse identifier of a score config. When passing this field, the dataType and stringValue fields are automatically populated.
+      source:
+        type: optional<commons.ScoreSource>
+        docs: The source of the score. Defaults to API. Set to ANNOTATION to prefill scores (e.g. from an LLM) for a human reviewer to verify in an annotation queue. When source is ANNOTATION, a configId is required unless dataType is CORRECTION.
     examples:
       - value:
           name: "novelty"
@@ -90,6 +93,14 @@ types:
           value: "Great explanation of the concept"
           dataType: "TEXT"
           traceId: "cdef-1234-5678-90ab"
+      - value:
+          name: "accuracy"
+          value: 0.9
+          dataType: "NUMERIC"
+          configId: "9203-4567-89ab-cdef"
+          traceId: "cdef-1234-5678-90ab"
+          source: "ANNOTATION"
+          queueId: "aq-1234-5678-90ab-cdef"
   CreateScoreResponse:
     properties:
       id:

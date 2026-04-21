@@ -116,6 +116,16 @@ export const PostScoresBody = applyScoreValidation(
       }),
     ]),
   ),
+).refine(
+  (data) =>
+    data.source !== "ANNOTATION" ||
+    data.dataType === "CORRECTION" ||
+    !!data.configId,
+  {
+    message:
+      "configId is required when source is ANNOTATION (except for CORRECTION scores).",
+    path: ["configId"],
+  },
 );
 
 export const PostScoresResponse = z.object({ id: z.string() });

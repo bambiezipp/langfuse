@@ -1,6 +1,7 @@
 import { jsonSchema } from "../../../utils/zod";
 import z from "zod";
 import { NonEmptyString } from "../../../utils/zod";
+import { ScoreSourceDomain } from "../../../domain/scores";
 
 /**
  * Foundation schema for all score types. Used for ingestion and public API. Supports trace, observation and session scores.
@@ -18,4 +19,5 @@ export const PostScoreBodyFoundationSchema = z.object({
   metadata: jsonSchema.nullish(),
   environment: z.string().default("default"),
   queueId: z.string().nullish(),
+  source: ScoreSourceDomain.default("API"),
 });
