@@ -728,7 +728,7 @@ function extractCompletionWithReasoning(
  * where apiVersion is "v1beta" (GAI) or "v1" (GCP).
  * We strip only the exact suffixes ChatGoogle appends (version + models/publishers/projects)
  * to avoid doubled paths, while preserving custom proxy routes like /v1/gateway.
- * Basic-auth credentials in the URL are preserved.
+ * Basic-auth credentials in the URL are preserved
  */
 export function baseUrlToEndpoint(baseUrl: string): string {
   try {
