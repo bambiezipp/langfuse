@@ -6,13 +6,17 @@ import {
   ExperimentGridCell,
   ExperimentGridCellEmpty,
 } from "./ExperimentGridCell";
-import { type ExperimentItemsTableRow, getExperimentColor } from "./types";
+import {
+  type ExperimentItemsTableRow,
+  getExperimentColorStyles,
+} from "./types";
 import { useMemo } from "react";
 import { type RowHeight } from "@/src/components/table/data-table-row-height-switch";
 import {
   type OnChangeFn,
   type PaginationState,
   type VisibilityState,
+  type RowSelectionState,
 } from "@tanstack/react-table";
 import { useExperimentNames } from "@/src/features/experiments/hooks/useExperimentNames";
 import { cn } from "@/src/utils/tailwind";
@@ -44,6 +48,10 @@ type ExperimentGridViewProps = {
   };
   noResultsMessage?: ReactNode;
   peekView?: DataTablePeekViewProps;
+  // Selection props
+  selectActionColumn?: LangfuseColumnDef<ExperimentItemsTableRow>;
+  rowSelection: RowSelectionState;
+  setRowSelection: OnChangeFn<RowSelectionState>;
 };
 
 /**
@@ -64,6 +72,9 @@ export const ExperimentGridView = ({
   pagination,
   noResultsMessage,
   peekView,
+  selectActionColumn,
+  rowSelection,
+  setRowSelection,
 }: ExperimentGridViewProps) => {
   // Build all experiment IDs (baseline first)
   const allExperimentIds = useMemo(
@@ -79,8 +90,8 @@ export const ExperimentGridView = ({
       const isBaseline = index === 0;
       const expInfo = experimentNames.find((e) => e.experimentId === expId);
       const expName = expInfo?.experimentName ?? expId.slice(0, 8);
-      const colorClass = useExperimentColors
-        ? getExperimentColor(expId, allExperimentIds)
+      const colorStyles = useExperimentColors
+        ? getExperimentColorStyles(expId, allExperimentIds)
         : undefined;
 
       return {
@@ -88,22 +99,24 @@ export const ExperimentGridView = ({
         id: expId,
         header: () => (
           <div className="flex items-center gap-2">
-            <span className={cn("truncate font-medium", colorClass)}>
+            <span
+              className={cn("truncate font-medium", colorStyles?.textClass)}
+            >
               {expName}
             </span>
-            {isBaseline && useExperimentColors && (
+            {useExperimentColors && (
               <Badge
-                variant="secondary"
+                variant="outline"
                 size="sm"
-                className="shrink-0 font-medium"
+                className={cn("shrink-0 font-medium", colorStyles?.badgeClass)}
               >
-                Baseline
+                {isBaseline ? "Baseline" : "Comp"}
               </Badge>
             )}
           </div>
         ),
         size: 400,
-        cell: ({ row }: { row: { original: ExperimentItemsTableRow } }) => {
+        cell: ({ row }) => {
           // Find this experiment's data
           const expData = row.original.experiments.find(
             (e) => e.experimentId === expId,
@@ -127,7 +140,6 @@ export const ExperimentGridView = ({
           return (
             <ExperimentGridCell
               projectId={projectId}
-              experimentId={expId}
               itemId={row.original.itemId}
               output={output}
               level={expData.level}
@@ -144,6 +156,7 @@ export const ExperimentGridView = ({
               baselineScores={baselineData?.observationScores}
               baselineTraceScores={baselineData?.traceScores}
               columnVisibility={columnVisibility}
+              markerClassName={colorStyles?.markerClass}
             />
           );
         },
@@ -160,9 +173,11 @@ export const ExperimentGridView = ({
     useExperimentColors,
   ]);
 
-  // Build all columns: Input, Expected Output, then experiment columns
+  // Build all columns: Select, Input, Expected Output, then experiment columns
   const columns: LangfuseColumnDef<ExperimentItemsTableRow>[] = useMemo(
     () => [
+      // Include select column if provided
+      ...(selectActionColumn ? [selectActionColumn] : []),
       {
         accessorKey: "input",
         id: "input",
@@ -194,7 +209,7 @@ export const ExperimentGridView = ({
       },
       ...experimentColumns,
     ],
-    [experimentColumns, isLoading],
+    [experimentColumns, isLoading, selectActionColumn],
   );
 
   return (
@@ -212,6 +227,9 @@ export const ExperimentGridView = ({
       customRowHeights={GRID_VIEW_ROW_HEIGHTS}
       topAlignCells
       peekView={peekView}
+      columnVisibility={columnVisibility}
+      rowSelection={rowSelection}
+      setRowSelection={setRowSelection}
     />
   );
 };

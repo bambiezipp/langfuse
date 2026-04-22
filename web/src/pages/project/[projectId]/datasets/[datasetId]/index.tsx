@@ -235,7 +235,7 @@ export default function Dataset() {
       >
         <ExperimentsTable
           projectId={projectId}
-          defaultFilter={[
+          fixedFilter={[
             {
               column: "experimentDatasetId",
               type: "stringOptions",
@@ -318,7 +318,6 @@ export default function Dataset() {
 
             <DatasetAnalytics
               key="dataset-analytics"
-              projectId={projectId}
               scoreOptions={scoreOptions}
               selectedMetrics={selectedMetrics}
               setSelectedMetrics={setSelectedMetrics}

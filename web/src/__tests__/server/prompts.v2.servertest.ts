@@ -1,5 +1,3 @@
-/** @jest-environment node */
-
 import { prisma } from "@langfuse/shared/src/db";
 import { disconnectQueues, makeAPICall } from "@/src/__tests__/test-utils";
 import { v4 as uuidv4, v4 } from "uuid";
@@ -69,7 +67,7 @@ const setupTriggerAndAction = async (projectId: string) => {
       id: v4(),
       projectId: projectId,
       eventSource: "prompt",
-      eventActions: ["updated"],
+      eventActions: [],
       filter: [],
       status: "ACTIVE",
     },
