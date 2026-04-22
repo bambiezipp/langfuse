@@ -16,6 +16,10 @@ import snakeCase from "lodash/snakeCase";
 import { env } from "@/src/env.mjs";
 
 const projectId = "7a88fb47-b4e2-43b8-a06c-a5ce950dc53a";
+const describeIfEventsTableEnabled =
+  env.LANGFUSE_ENABLE_EVENTS_TABLE_OBSERVATIONS === "true"
+    ? describe
+    : describe.skip;
 
 // Helper type for observation data
 type ObservationData = {
@@ -476,7 +480,7 @@ describe("/api/public/observations API Endpoint", () => {
   }
   runTestSuite(false); // with observations table
 
-  describe("trace-observation id (`t-<traceId>`)", () => {
+  describeIfEventsTableEnabled("trace-observation id (`t-<traceId>`)", () => {
     it("resolves a t-prefixed id via the events reader even when the classic path is selected", async () => {
       const traceId = uuidv4();
       const syntheticId = `t-${traceId}`;

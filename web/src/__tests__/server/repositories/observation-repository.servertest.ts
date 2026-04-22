@@ -10,9 +10,14 @@ import {
   getObservationsForTrace,
   getTraceIdsForObservations,
 } from "@langfuse/shared/src/server";
+import { env } from "@/src/env.mjs";
 import { v4 } from "uuid";
 
 const projectId = "7a88fb47-b4e2-43b8-a06c-a5ce950dc53a";
+const describeIfEventsTableEnabled =
+  env.LANGFUSE_ENABLE_EVENTS_TABLE_OBSERVATIONS === "true"
+    ? describe
+    : describe.skip;
 
 describe("Clickhouse Observations Repository Test", () => {
   it("should throw if no observations are found", async () => {
@@ -153,62 +158,64 @@ describe("Clickhouse Observations Repository Test", () => {
     expect(result.type).toEqual(observation.type);
   });
 
-  it("should resolve synthetic trace observation ids via the events table", async () => {
-    const traceId = v4();
-    const syntheticId = `t-${traceId}`;
+  describeIfEventsTableEnabled("trace-observation id (`t-<traceId>`)", () => {
+    it("should resolve synthetic trace observation ids via the events table", async () => {
+      const traceId = v4();
+      const syntheticId = `t-${traceId}`;
 
-    const syntheticSpan = createEvent({
-      id: syntheticId,
-      span_id: syntheticId,
-      project_id: projectId,
-      trace_id: traceId,
-      type: "SPAN",
-      name: "synthetic-root-span",
-      parent_span_id: null,
+      const syntheticSpan = createEvent({
+        id: syntheticId,
+        span_id: syntheticId,
+        project_id: projectId,
+        trace_id: traceId,
+        type: "SPAN",
+        name: "synthetic-root-span",
+        parent_span_id: null,
+      });
+
+      await createEventsCh([syntheticSpan]);
+
+      const result = await getTraceIdsForObservations(projectId, [syntheticId]);
+
+      expect(result).toEqual([{ id: syntheticId, traceId }]);
     });
 
-    await createEventsCh([syntheticSpan]);
+    it("should not invent a trace id for missing t-prefixed observations", async () => {
+      const missingId = `t-${v4()}`;
 
-    const result = await getTraceIdsForObservations(projectId, [syntheticId]);
+      const result = await getTraceIdsForObservations(projectId, [missingId]);
 
-    expect(result).toEqual([{ id: syntheticId, traceId }]);
-  });
-
-  it("should not invent a trace id for missing t-prefixed observations", async () => {
-    const missingId = `t-${v4()}`;
-
-    const result = await getTraceIdsForObservations(projectId, [missingId]);
-
-    expect(result).toEqual([]);
-  });
-
-  it("should find synthetic trace observations across midnight in existence checks", async () => {
-    const traceId = v4();
-    const syntheticId = `t-${traceId}`;
-    const eventStartTime = new Date("2024-01-15T23:55:00.000Z");
-    const lookupTime = new Date("2024-01-16T00:05:00.000Z");
-
-    const syntheticSpan = createEvent({
-      id: syntheticId,
-      span_id: syntheticId,
-      project_id: projectId,
-      trace_id: traceId,
-      type: "SPAN",
-      name: "synthetic-root-span",
-      parent_span_id: null,
-      start_time: eventStartTime.getTime() * 1000,
-      event_ts: eventStartTime.getTime() * 1000,
+      expect(result).toEqual([]);
     });
 
-    await createEventsCh([syntheticSpan]);
+    it("should find synthetic trace observations across midnight in existence checks", async () => {
+      const traceId = v4();
+      const syntheticId = `t-${traceId}`;
+      const eventStartTime = new Date("2024-01-15T23:55:00.000Z");
+      const lookupTime = new Date("2024-01-16T00:05:00.000Z");
 
-    const exists = await checkObservationExists(
-      projectId,
-      syntheticId,
-      lookupTime,
-    );
+      const syntheticSpan = createEvent({
+        id: syntheticId,
+        span_id: syntheticId,
+        project_id: projectId,
+        trace_id: traceId,
+        type: "SPAN",
+        name: "synthetic-root-span",
+        parent_span_id: null,
+        start_time: eventStartTime.getTime() * 1000,
+        event_ts: eventStartTime.getTime() * 1000,
+      });
 
-    expect(exists).toBe(true);
+      await createEventsCh([syntheticSpan]);
+
+      const exists = await checkObservationExists(
+        projectId,
+        syntheticId,
+        lookupTime,
+      );
+
+      expect(exists).toBe(true);
+    });
   });
 
   it("should return an observation view", async () => {
