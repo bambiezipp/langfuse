@@ -28,8 +28,7 @@ import { useColumnFilterState } from "@/src/features/filters/hooks/useColumnFilt
 import { type Prisma } from "@langfuse/shared";
 import { type EnrichedDatasetRunItem } from "@langfuse/shared/src/server";
 import { usePeekNavigation } from "@/src/components/table/peek/hooks/usePeekNavigation";
-import { PeekViewTraceDetail } from "@/src/components/table/peek/peek-trace-detail";
-import { TablePeekView } from "@/src/components/table/peek";
+import { TablePeekViewTraceDetail } from "@/src/components/table/peek/peek-trace-detail";
 
 export type DatasetCompareRunRowData = {
   id: string;
@@ -301,9 +300,7 @@ function DatasetCompareRunsTableInternal(props: {
         }}
         peekView={peekConfig}
       />
-      <TablePeekView {...peekConfig}>
-        <PeekViewTraceDetail projectId={props.projectId} />
-      </TablePeekView>
+      <TablePeekViewTraceDetail {...peekConfig} projectId={props.projectId} />
     </>
   );
 }

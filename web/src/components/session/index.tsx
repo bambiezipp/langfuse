@@ -39,8 +39,7 @@ import {
   TableViewPresetTableName,
 } from "@langfuse/shared";
 import { CreateNewAnnotationQueueItem } from "@/src/features/annotation-queues/components/CreateNewAnnotationQueueItem";
-import { TablePeekView } from "@/src/components/table/peek";
-import { PeekViewTraceDetail } from "@/src/components/table/peek/peek-trace-detail";
+import { TablePeekViewTraceDetail } from "@/src/components/table/peek/peek-trace-detail";
 import { usePeekNavigation } from "@/src/components/table/peek/hooks/usePeekNavigation";
 import { type WithStringifiedMetadata } from "@/src/utils/clientSideDomainTypes";
 import { LazyTraceRow } from "@/src/components/session/TraceRow";
@@ -503,15 +502,14 @@ export const SessionPage: React.FC<{
           </div>
         </div>
       </div>
-      <TablePeekView
+      <TablePeekViewTraceDetail
         itemType="TRACE"
         detailNavigationKey="traces"
         closePeek={closePeek}
         expandPeek={expandPeek}
         resolveDetailNavigationPath={resolveDetailNavigationPath}
-      >
-        <PeekViewTraceDetail projectId={projectId} />
-      </TablePeekView>
+        projectId={projectId}
+      />
     </Page>
   );
 };
@@ -1027,15 +1025,14 @@ export const SessionEventsPage: React.FC<{
           </div>
         </div>
       </div>
-      <TablePeekView
+      <TablePeekViewTraceDetail
         itemType="TRACE"
         detailNavigationKey="traces"
         closePeek={closePeek}
         expandPeek={expandPeek}
         resolveDetailNavigationPath={resolveDetailNavigationPath}
-      >
-        <PeekViewTraceDetail projectId={projectId} />
-      </TablePeekView>
+        projectId={projectId}
+      />
     </Page>
   );
 };
